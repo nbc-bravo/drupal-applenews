@@ -376,6 +376,16 @@ function applenews_element_info() {
 }
 
 /**
+ * FAPI #submit callback.
+ *
+ * @see applenews_form_alter()
+ */
+function _applenews_form_alter_node_form_submit(&$form, &$form_state) {
+  $form['#node']->applenews['applenews_publish_flag']
+    = !empty($form_state['values']['applenews']['applenews_publish_flag']);
+}
+
+/**
  * FAPI #pre_render callback.
  *
  * @see applenews_element_info()
