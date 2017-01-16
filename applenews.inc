@@ -490,6 +490,11 @@ function applenews_get_module_apis($class = NULL, $type = NULL, $reset = FALSE) 
         ) {
           $class_type = 'componentLayout';
         }
+        elseif ($destination['class'] == 'ApplenewsDestinationAdvertisingSettings' ||
+                $reflection->isSubclassOf('ApplenewsDestinationAdvertisingSettings')
+        ) {
+          $class_type = 'advertisingSettings';
+        }
         else {
           $msg = 'Class %class is not a subclass of ApplenewsDestination.';
           $args = ['%class' => $destination['class']];

@@ -33,6 +33,16 @@
         }
       });
 
+      // Advertising settings
+      $('fieldset#edit-config-additional-settings-advertising-settings-tab', context).drupalSetSummary(function (context) {
+        if ($('.form-item', context).length !== 0) {
+          return Drupal.t('Configure advertising settings');
+        }
+        else {
+          return Drupal.t('No advertising settings');
+        }
+      });
+
       // Layout
       $('fieldset#edit-config-additional-settings-layouts-tab', context).drupalSetSummary(function (context) {
         if ($('.form-item', context).length !== 0) {

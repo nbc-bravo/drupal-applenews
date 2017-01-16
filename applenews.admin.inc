@@ -875,6 +875,16 @@ function applenews_export_destination_edit_form($form, &$form_state, ApplenewsEx
       $fragment = 'edit-config-additional-settings-layouts-tab';
       break;
 
+    case 'advertisingSettings':
+      /** @var ApplenewsDestinationAdvertisingSettings $destination */
+      $destination = $export->getAdvertisingSettings();
+      if (empty($destination)) {
+        return [];
+      }
+      drupal_set_title(t('Edit Advertisting Settings'), PASS_THROUGH);
+      $fragment = 'edit-config-additional-settings-advertising-settings-tab';
+      break;
+
     default:
       return $form;
 
