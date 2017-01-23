@@ -532,6 +532,7 @@ abstract class ApplenewsExportConfigurable extends ApplenewsExport {
       'components' => [],
       'layout' => NULL,
       'componentLayouts' => [],
+      'advertisingSettings' => NULL,
     ];
     $this->init();
   }
@@ -574,6 +575,12 @@ abstract class ApplenewsExportConfigurable extends ApplenewsExport {
     ) {
       unset($this->destinations['layout']);
     }
+    $obj = $this->destinations['advertisingSettings'];
+    if ($obj instanceof __PHP_Incomplete_Class ||
+        !$obj instanceof ApplenewsDestinationAdvertisingSettings
+    ) {
+      unset($this->destinations['advertisingSettings']);
+    }
     $this->init();
   }
 
@@ -587,6 +594,9 @@ abstract class ApplenewsExportConfigurable extends ApplenewsExport {
     }
     if (!$this->getMetadata()) {
       $this->setMetadata($this->newMetadata());
+    }
+    if (!$this->getAdvertisingSettings()) {
+      $this->setAdvertisingSettings($this->newAdvertisingSettings());
     }
     // Copy some attribute data to child objects.
     foreach (['components', 'componentLayouts'] as $key) {
@@ -673,6 +683,34 @@ abstract class ApplenewsExportConfigurable extends ApplenewsExport {
    */
   public function getLayout() {
     return $this->destinations['layout'];
+  }
+
+  /**
+   * Generates a new advertisingSettings attribute/
+   *
+   * @return ApplenewsDestinationAdvertisingSettings
+   *   A new AdvertisingSettings object.
+   */
+  public function newAdvertisingSettings() {
+    module_load_include('inc', 'applenews');
+    return applenews_new_destination('applenews', 'advertisingSettings');
+  }
+
+  /**
+   * Set advertisingSettings.
+   */
+  public function setAdvertisingSettings(ApplenewsDestinationAdvertisingSettings $advertisingSettings) {
+    $this->destinations['advertisingSettings'] = $advertisingSettings;
+  }
+
+  /**
+   * Get advertisingSettings.
+   *
+   * @return ApplenewsDestinationAdvertisingSettings
+   *   AdvertisingSettings object.
+   */
+  public function getAdvertisingSettings() {
+    return $this->destinations['advertisingSettings'];
   }
 
   /**
@@ -941,6 +979,25 @@ abstract class ApplenewsExportConfigurable extends ApplenewsExport {
       '#weight' => 10,
     ] + $this->getMetadata()->getConfigForm($child_values);
 
+    // Advertising settings.
+    $form['additional_settings']['advertising_settings_tab'] = [
+      '#type' => 'fieldset',
+      '#title' => 'Advertising settings',
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+      '#group' => 'main',
+    ];
+    $tab = &$form['additional_settings']['advertising_settings_tab'];
+
+    $child_values = isset($values['advertising_settings_destination']) ? $values['advertising_settings_destination'] : [];
+    $tab['advertising_settings_destination'] = [
+         '#type' => 'fieldset',
+         '#title' => 'Advertising settings',
+         '#tree' => TRUE,
+         '#weight' => 1.1,
+       ] +
+       $this->getAdvertisingSettings()->getConfigForm($child_values);
+
     $form['additional_settings']['layouts_tab'] = [
       '#type' => 'fieldset',
       '#title' => t('Layout'),
@@ -1150,6 +1207,9 @@ abstract class ApplenewsExportConfigurable extends ApplenewsExport {
     $this->getMetadata()->submitConfigForm(
       $values['additional_settings']['metadata_tab']['metadata_destination']);
 
+    $this->getAdvertisingSettings()->submitConfigForm(
+      $values['additional_settings']['advertising_settings_tab']['advertising_settings_destination']);
+
     $this->getLayout()->submitConfigForm(
       $values['additional_settings']['layouts_tab']['layout_destination']);
 
@@ -1283,6 +1343,9 @@ class ApplenewsExportNode extends ApplenewsExportConfigurable {
 
     /** @var \ChapterThree\AppleNewsAPI\Document\Metadata $metadata */
     $this->document->setMetadata($this->getMetadata()->export());
+
+    // Advertising settings.
+    $this->document->setAdvertisingSettings($this->getAdvertisingSettings()->export());
 
     // Components.
     /** @var ApplenewsDestinationComponentLayout $destination */

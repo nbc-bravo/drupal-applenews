@@ -620,6 +620,10 @@ function applenews_applenews_api() {
         'class' => 'ApplenewsDestinationMetadata',
         'name' => 'metadata',
       ],
+      'advertisingSettings' => [
+        'class' => 'ApplenewsDestinationAdvertisingSettings',
+        'name' => 'Advertising Settings',
+      ],
       'componentLayout' => [
         'class' => 'ApplenewsDestinationComponentLayout',
         'name' => 'Component Layout',
