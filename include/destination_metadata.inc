@@ -27,6 +27,7 @@ class ApplenewsDestinationMetadata extends ApplenewsDestinationSingleton {
       'keywords'           => NULL,
       'excerpt'            => NULL,
       'transparentToolbar' => NULL,
+      'canonicalURL'       => TRUE,
     ] + parent::settings();
   }
 
@@ -67,6 +68,14 @@ class ApplenewsDestinationMetadata extends ApplenewsDestinationSingleton {
     $element = parent::getConfigFormSourceElement('transparentToolbar');
     $element['#title'] = t('Transparent Toolbar');
     $form['settings']['transparentToolbar'] = $element;
+
+    $form['settings']['canonicalURL'] = [
+      '#title' => t('Set canonical URL'),
+      '#description' => t('This will include a link to the web version of the article in the metadata of the Apple News Document format document.'),
+      '#tree' => TRUE,
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('canonicalURL'),
+    ];
 
     return $form;
   }
@@ -156,6 +165,12 @@ class ApplenewsDestinationMetadata extends ApplenewsDestinationSingleton {
       $this->getSetting('transparentToolbar'));
     if (!empty($values[0][$key])) {
       $metadata->setTransparentToolbar(TRUE);
+    }
+
+    if ($this->getSetting('canonicalURL')) {
+      $uri = entity_uri($this->export->entityType(), $this->export->source);
+      $uri['options']['absolute'] = TRUE;
+      $metadata->setCanonicalURL(url($uri['path'], $uri['options']));
     }
 
     return $metadata;
