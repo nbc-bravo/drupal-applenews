@@ -422,10 +422,10 @@ abstract class ApplenewsExport {
   /**
    * Exports the entity to an Apple News Document object.
    *
-   * @return NULL|\ChapterThree\AppleNewsAPI\Document
-   *   A document object, or NULL to skip the export.
+   * @return \ChapterThree\AppleNewsAPI\Document
+   *   A document object.
    *
-   * @todo verify NULL return aborts push.
+   * @throws ApplenewsInvalidExport
    */
   abstract public function exportDocument();
 
@@ -1534,4 +1534,10 @@ class ApplenewsExportNodePreConfigured extends ApplenewsExportNode {
 
   }
 
+}
+
+/**
+ * Exception for anything that went wrong with the Export.
+ */
+class ApplenewsInvalidExport extends Exception {
 }

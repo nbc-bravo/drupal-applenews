@@ -87,6 +87,8 @@ abstract class ApplenewsDestinationSingleton {
    *
    * @return \ChapterThree\AppleNewsAPI\Document\Base
    *   The object.
+   *
+   * @throws ApplenewsInvalidDestinationInput
    */
   abstract public function export();
 
@@ -650,4 +652,12 @@ abstract class ApplenewsDestination extends ApplenewsDestinationSingleton {
     return [];
   }
 
+}
+
+/**
+ * A destination class can throw an InvalidDestinationInput exception when the
+ * input does not fit it's intended destination. In such cases, the Export
+ * object can choose how to handle it, or choose to ignore it.
+ */
+class ApplenewsInvalidDestinationInput extends ApplenewsInvalidExport {
 }

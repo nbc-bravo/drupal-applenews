@@ -23,6 +23,9 @@ class ApplenewsDestinationAdvertisingSettings extends ApplenewsDestinationSingle
     ] + parent::settings();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getConfigForm(array $values = []) {
     $form = parent::getConfigForm($values);
 

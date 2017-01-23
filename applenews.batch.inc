@@ -124,25 +124,31 @@ function applenews_batch_post($export_id, $entity_type, $entity, $total_count, &
       );
       // Check if the article had already been exported.
       $export_log = applenews_is_exported($channel_id, $wrapper, $entity_type);
-      // Process only non-published articles.
-      if (!$export_log) {
-        // Post an article to Apple News.
-        if ($success = applenews_op('insert', $channel_id, $entity, $entity_type, $export)) {
-          $context['results']['info']['insert']++;
-        };
-      }
-      else {
-        // Update an article only if the entity was updated since the last
-        // export.
-        if ($export_log['postdate'] < $entity->changed) {
-          if ($success = applenews_op('update', $channel_id, $entity, $entity_type, $export)) {
-            $context['results']['info']['update']++;
+      try {
+        // Process only non-published articles.
+        if (!$export_log) {
+          // Post an article to Apple News.
+          if ($success = applenews_op('insert', $channel_id, $entity, $entity_type, $export)) {
+            $context['results']['info']['insert']++;
           }
         }
         else {
-          $success = TRUE;
-          $context['results']['info']['skip']++;
+          // Update an article only if the entity was updated since the last
+          // export.
+          if ($export_log['postdate'] < $entity->changed) {
+            if ($success = applenews_op('update', $channel_id, $entity, $entity_type, $export)) {
+              $context['results']['info']['update']++;
+            }
+          }
+          else {
+            $success = TRUE;
+            $context['results']['info']['skip']++;
+          }
         }
+      }
+      catch (ApplenewsInvalidExport $e) {
+        $success = FALSE;
+        $context['results']['info']['skip']++;
       }
       if (!$success) {
         drupal_set_message(
@@ -257,15 +263,20 @@ function applenews_batch_preview_generate($export_id, $entity_type, $entity, $to
     ]
   );
 
-  $data = applenews_entity_export($export, $entity_type, $entity_wrapper->getIdentifier());
+  try {
+    $data = applenews_entity_export($export, $entity_type, $entity_wrapper->getIdentifier());
 
-  $context['results']['export_id'] = $export->id;
-  $context['results']['entity_ids'][] = $entity_wrapper->getIdentifier();
+    $context['results']['export_id'] = $export->id;
+    $context['results']['entity_ids'][] = $entity_wrapper->getIdentifier();
 
-  // Generate article files for an entity.
-  applenews_export_to_file($entity_wrapper->getIdentifier(), [], NULL, FALSE, $data);
+    // Generate article files for an entity.
+    applenews_export_to_file($entity_wrapper->getIdentifier(), [], NULL, FALSE, $data);
 
-  $context['results']['count']++;
+    $context['results']['count']++;
+  }
+  catch (ApplenewsInvalidExport $e) {
+    // @todo how best to report errors to the batch?
+  }
 
 }
 

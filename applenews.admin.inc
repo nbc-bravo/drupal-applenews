@@ -1127,30 +1127,34 @@ function applenews_download_article_json($entity_type, $entity_id, $revision_id)
   if (!empty($entity_id)) {
 
     if ($export = applenews_entity_get_export($entity_type, $entity_id)) {
-      $data = applenews_entity_export($export, $entity_type, $entity_id);
-      $archive_path = applenews_export_to_file($entity_id, [$entity_id], NULL, TRUE, $data);
-      if (!$archive_path) {
-        // Yuck.
-        return t('Could not generate archive, look in watchdog for errors.');
+      try {
+        $data = applenews_entity_export($export, $entity_type, $entity_id);
+        $archive_path = applenews_export_to_file($entity_id, [$entity_id], NULL, TRUE, $data);
+        if (!$archive_path) {
+          // Yuck.
+          return t('Could not generate archive, look in watchdog for errors.');
+        }
+
+        $archive = $archive_path . '.zip';
+        $output = file_get_contents($archive, FILE_USE_INCLUDE_PATH);
+        if ($output === FALSE) {
+          // Yuck.
+          return t('Could not generate archive, look in watchdog for errors.');
+        }
+
+        // Remove individual entity archive.
+        applenews_export_file_delete($entity_id);
+        // Remove individual entity directory.
+        applenews_export_dir_cleanup([$entity_id]);
+
+        drupal_add_http_header('Content-Type', 'application/zip');
+        drupal_add_http_header('Content-Disposition', 'attachment; filename=' . $entity_id . '.zip');
+
+        echo $output;
       }
-
-      $archive = $archive_path . '.zip';
-      $output = file_get_contents($archive, FILE_USE_INCLUDE_PATH);
-      if ($output === FALSE) {
-        // Yuck.
-        return t('Could not generate archive, look in watchdog for errors.');
+      catch (ApplenewsInvalidExport $e) {
+        return t('There was a problem with the export: ' . $e->getMessage());
       }
-
-      // Remove individual entity archive.
-      applenews_export_file_delete($entity_id);
-      // Remove individual entity directory.
-      applenews_export_dir_cleanup([$entity_id]);
-
-      drupal_add_http_header('Content-Type', 'application/zip');
-      drupal_add_http_header('Content-Disposition', 'attachment; filename=' . $entity_id . '.zip');
-
-      echo $output;
-
     }
     else {
       return t('Export not defined for this entity.');

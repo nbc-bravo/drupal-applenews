@@ -592,14 +592,24 @@ function applenews_entity_export_valid(ApplenewsExport $export, $entity_type, $e
  *   With keys:
  *   - json: The apple news document JSON.
  *   - files: Array of asset paths keyed on Apple Document URL.
+ *
+ * @throws ApplenewsInvalidExport
  */
 function applenews_entity_export(ApplenewsExport $export, $entity_type, $entity_id) {
   $entity = entity_load_single($entity_type, $entity_id);
   $export->setSource($entity);
-  return [
-    'json'  => $export->exportDocument()->json(),
-    'files' => $export->getAssets(),
-  ];
+  try {
+    return [
+      'json' => $export->exportDocument()->json(),
+      'files' => $export->getAssets(),
+    ];
+  }
+  catch (ApplenewsInvalidExport $e) {
+    // Log the exception in Watchdog and throw it again to allow clients to
+    // handle it. Depending on context they may want to show a message.
+    watchdog_exception('applenews', $e);
+    throw $e;
+  }
 }
 
 /**
@@ -872,7 +882,9 @@ function applenews_delete($channel_id, $entity_type, EntityDrupalWrapper $entity
  *   Export object.
  *
  * @return bool
- *   Success.
+ *   TRUE on success, FALSE on failure.
+ *
+ * @throws ApplenewsInvalidExport
  */
 function applenews_op($operation, $channel_id, $entity, $entity_type, ApplenewsExport $export = NULL) {
   $result = FALSE;
