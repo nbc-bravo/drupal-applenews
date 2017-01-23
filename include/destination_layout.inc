@@ -69,7 +69,7 @@ class ApplenewsDestinationLayout extends ApplenewsDestinationSingleton {
    *   Apple News Document layout object.
    */
   public function export() {
-    $layout = new Layout($this->getSetting('columns'), $this->getSetting('width'));
+    $layout = new Layout((int)$this->getSetting('columns'), (int)$this->getSetting('width'));
     foreach ([
         'margin' => 'setMargin',
         'gutter' => 'setGutter',
@@ -77,7 +77,7 @@ class ApplenewsDestinationLayout extends ApplenewsDestinationSingleton {
     ) {
       $value = $this->getSetting($key);
       if ($value !== NULL && $value !== '') {
-        $layout->{$method}($value);
+        $layout->{$method}((int)$value);
       }
     }
     return $layout;
