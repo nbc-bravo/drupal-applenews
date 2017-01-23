@@ -269,6 +269,7 @@ class ApplenewsDestinationBody extends ApplenewsDestinationComponent {
       '#options'       => [
         ''         => t('None'),
         'markdown' => t('Markdown'),
+        'html' => t('HTML'),
       ],
       '#default_value' => $this->getSetting('format'),
     ];
@@ -896,6 +897,7 @@ class ApplenewsDestinationText extends ApplenewsDestinationComponent {
       '#options'       => [
         ''         => t('None'),
         'markdown' => t('Markdown'),
+        'html' => t('HTML'),
       ],
       '#default_value' => $this->getSetting('format'),
     ];

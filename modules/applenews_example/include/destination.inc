@@ -462,6 +462,7 @@ class ApplenewsexampleDestinationPullQuote extends ApplenewsDestinationComponent
       '#options'       => [
         ''         => t('None'),
         'markdown' => t('Markdown'),
+        'html' => t('HTML'),
       ],
       '#default_value' => $this->getSetting('format'),
     ];
