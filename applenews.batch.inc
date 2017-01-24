@@ -146,6 +146,8 @@ function applenews_batch_post($export_id, $entity_type, $entity, $total_count, &
           }
         }
       }
+      // Catch exception from the call to applenews_op, mark the export to this
+      // channel as failted and increment the number of items skipped.
       catch (ApplenewsInvalidExport $e) {
         $success = FALSE;
         $context['results']['info']['skip']++;

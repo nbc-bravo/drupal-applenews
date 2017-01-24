@@ -1153,7 +1153,7 @@ function applenews_download_article_json($entity_type, $entity_id, $revision_id)
         echo $output;
       }
       catch (ApplenewsInvalidExport $e) {
-        return t('There was a problem with the export: ' . $e->getMessage());
+        return t('There was a problem with the export: @message', array($e->getMessage()));
       }
     }
     else {

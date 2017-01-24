@@ -885,6 +885,8 @@ function applenews_delete($channel_id, $entity_type, EntityDrupalWrapper $entity
  *   TRUE on success, FALSE on failure.
  *
  * @throws ApplenewsInvalidExport
+ *   Generating the export for insert and update $op's may generate a
+ *   ApplenewsInvalidExport exception.
  */
 function applenews_op($operation, $channel_id, $entity, $entity_type, ApplenewsExport $export = NULL) {
   $result = FALSE;
