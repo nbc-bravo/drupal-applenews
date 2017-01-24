@@ -266,7 +266,7 @@ function applenews_batch_preview_generate($export_id, $entity_type, $entity, $to
   );
 
   try {
-    $data = applenews_entity_export($export, $entity_type, $entity_wrapper->getIdentifier());
+    $data = applenews_entity_export($export, $entity);
 
     $context['results']['export_id'] = $export->id;
     $context['results']['entity_ids'][] = $entity_wrapper->getIdentifier();

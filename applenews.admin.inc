@@ -1128,7 +1128,8 @@ function applenews_download_article_json($entity_type, $entity_id, $revision_id)
 
     if ($export = applenews_entity_get_export($entity_type, $entity_id)) {
       try {
-        $data = applenews_entity_export($export, $entity_type, $entity_id);
+        $entity = entity_load_single($entity_type, $entity_id);
+        $data = applenews_entity_export($export, $entity);
         $archive_path = applenews_export_to_file($entity_id, [$entity_id], NULL, TRUE, $data);
         if (!$archive_path) {
           // Yuck.

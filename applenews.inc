@@ -583,10 +583,8 @@ function applenews_entity_export_valid(ApplenewsExport $export, $entity_type, $e
  *
  * @param ApplenewsExport $export
  *   Export to run.
- * @param string $entity_type
- *   Entity type.
- * @param string $entity_id
- *   Entity ID.
+ * @param object $entity
+ *   Entity object which is the source of the export.
  *
  * @return array
  *   With keys:
@@ -595,8 +593,7 @@ function applenews_entity_export_valid(ApplenewsExport $export, $entity_type, $e
  *
  * @throws ApplenewsInvalidExport
  */
-function applenews_entity_export(ApplenewsExport $export, $entity_type, $entity_id) {
-  $entity = entity_load_single($entity_type, $entity_id);
+function applenews_entity_export(ApplenewsExport $export, $entity) {
   $export->setSource($entity);
   try {
     return [
@@ -895,8 +892,7 @@ function applenews_op($operation, $channel_id, $entity, $entity_type, ApplenewsE
 
   $data = NULL;
   if ($operation != 'delete') {
-    $data = applenews_entity_export($export, $entity_type,
-      $entity_wrapper->getIdentifier());
+    $data = applenews_entity_export($export, $entity);
     if (!empty($settings['metadata'])) {
       $data['metadata'] = json_encode($settings['metadata']);
     }
