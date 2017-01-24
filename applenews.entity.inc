@@ -51,7 +51,7 @@ function _applenews_entity_push($op, $entity, $type) {
             t('Unable to push %title to %channel',
               [
                 '%title' => $wrapper->label(),
-                '%channel' => filter_xss($channel->name)
+                '%channel' => $channel['name'],
               ]), 'error'
           );
         }

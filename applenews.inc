@@ -947,6 +947,18 @@ function applenews_settings_fields() {
 
 /**
  * Get Apple News channels.
+ *
+ * @param bool $grouped
+ *
+ * @return array
+ *   Associative array keyed by channel id, with an associtive array of channel
+ *   data as value with the following keys:
+ *   - name: Name of the channel.
+ *   - sections: Associative array of sections keyed by section id, with as
+ *     associative array of section data as value with the following keys:
+ *     - name: Name of the section.
+ *     - url: URL of the section.
+ *     - default: Boolean indicating if this is the default section.
  */
 function applenews_channels($grouped = FALSE) {
   // Add Post to Apple News checkbox.
