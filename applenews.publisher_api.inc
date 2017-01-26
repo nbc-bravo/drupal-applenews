@@ -25,6 +25,7 @@ function applenews_publisher_api() {
       'ssl'        => TRUE,
       'proxy'      => '',
       'proxy_port' => '',
+      'timeout'    => 30,
     ]
   );
 
@@ -36,6 +37,9 @@ function applenews_publisher_api() {
   }
   if (!empty($opts['proxy_port'])) {
     $client->setOpt(CURLOPT_PROXYPORT, $opts['proxy_port']);
+  }
+  if (!empty($opts['timeout'])) {
+    $client->setTimeout($opts['timeout']);
   }
 
   return $publisher_api;

@@ -31,6 +31,7 @@ function applenews_settings_api_credentials_form($form, &$form_state) {
       'ssl'        => TRUE,
       'proxy'      => '',
       'proxy_port' => '',
+      'timeout'    => 30,
     ]
   );
 
@@ -84,6 +85,15 @@ function applenews_settings_api_credentials_form($form, &$form_state) {
     '#description' => t('Proxy server port number.'),
   ];
 
+  $form['advanced']['timeout'] = [
+    '#type' => 'textfield',
+    '#title' => t('Connection timeout'),
+    '#default_value' => $curl_opts['timeout'],
+    '#size' => 4,
+    '#description' => t('Timeout in seconds of connections to Apple News API.'),
+    '#required' => TRUE,
+  ];
+
   $form['advanced']['api_debug'] = [
     '#type' => 'select',
     '#title' => t('Debug API'),
@@ -128,6 +138,13 @@ function applenews_settings_api_credentials_form_validate($form, &$form_state) {
       }
     }
   }
+  // Validate connection timeout is an integer
+  if (!is_numeric($form_state['values']['timeout']) || !($form_state['values']['timeout'] > 0)) {
+    form_set_error('timeout', t('Connection timeout should be an integer greater than 0.'));
+  }
+  else {
+    form_set_value($form['advanced']['timeout'], (int)$form_state['values']['timeout'], $form_state);
+  }
 }
 
 /**
@@ -150,6 +167,7 @@ function applenews_settings_api_credentials_form_submit($form, &$form_state) {
       'ssl'        => !empty($form_state['values']['ssl_verification']) ? TRUE : FALSE,
       'proxy'      => !empty($form_state['values']['proxy']) ? filter_xss($form_state['values']['proxy']) : '',
       'proxy_port' => !empty($form_state['values']['proxy_port']) ? filter_xss($form_state['values']['proxy_port']) : '',
+      'timeout'    => $form_state['values']['timeout'],
     ]
   );
   variable_set('applenews_variable_api_debug', $form_state['values']['api_debug']);
