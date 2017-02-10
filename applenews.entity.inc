@@ -36,17 +36,17 @@ function _applenews_entity_push($op, $entity, $type) {
   try {
     foreach (applenews_channels(TRUE) as $channel_id => $channel) {
       if (!empty($el['channels']['channel-' . $channel_id])) {
-        $settings = [];
+        $metadata = [];
         foreach ($channel['sections'] as $section_id => $section) {
           if (!empty($el['channels']['section-' . $channel_id . '-' . $section_id])) {
-            $settings['metadata']['data']['links']['sections'][] = applenews_section_url($section_id);
+            $metadata['data']['links']['sections'][] = applenews_section_url($section_id);
           }
         }
 
         // Visible to members of the channel only.
-        $settings['metadata']['data']['isPreview'] = !empty($entity->applenews['is_preview']);
+        $metadata['data']['isPreview'] = !empty($entity->applenews['is_preview']) ? TRUE : FALSE;
 
-        if (!applenews_op($op, $channel_id, $entity, $type, $export)) {
+        if (!applenews_op($op, $channel_id, $entity, $type, $export, $metadata)) {
           drupal_set_message(
             t('Unable to push %title to %channel',
               [

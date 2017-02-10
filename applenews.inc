@@ -590,16 +590,35 @@ function applenews_entity_export_valid(ApplenewsExport $export, $entity_type, $e
  *   With keys:
  *   - json: The apple news document JSON.
  *   - files: Array of asset paths keyed on Apple Document URL.
+ *   - metadata: Array of article metadata including preview status and
+ *     sections.
  *
  * @throws ApplenewsInvalidExport
  */
 function applenews_entity_export(ApplenewsExport $export, $entity) {
   $export->setSource($entity);
   try {
-    return [
+    $export_array = [
       'json' => $export->exportDocument()->json(),
       'files' => $export->getAssets(),
     ];
+    // Pull together all the default metadata for the export.
+    // Preview status.
+    $metadata['data']['isPreview'] = $export->getSetting('is_preview') ? TRUE : FALSE;
+    // Sections.
+    $saved_channels = $export->getSetting('channels');
+    $saved_sections = $export->getSetting('sections');
+    foreach (applenews_channels(TRUE) as $channel_id => $channel) {
+      if (!empty($saved_channels[$channel_id])) {
+        foreach ($channel['sections'] as $section_id => $section) {
+          if (!empty($saved_sections[$section_id])) {
+            $metadata['data']['links']['sections'][] = applenews_section_url($section_id);
+          }
+        }
+      }
+    }
+    $export_array['metadata'] = json_encode($metadata);
+    return $export_array;
   }
   catch (ApplenewsInvalidExport $e) {
     // Log the exception in Watchdog and throw it again to allow clients to
@@ -877,6 +896,9 @@ function applenews_delete($channel_id, $entity_type, EntityDrupalWrapper $entity
  *   Entity type.
  * @param ApplenewsExport $export
  *   Export object.
+ * @param array $metadata
+ *   Metadata to send along in the request if any. Overrides the default
+ *   metadata configured for the export.
  *
  * @return bool
  *   TRUE on success, FALSE on failure.
@@ -885,7 +907,7 @@ function applenews_delete($channel_id, $entity_type, EntityDrupalWrapper $entity
  *   Generating the export for insert and update $op's may generate a
  *   ApplenewsInvalidExport exception.
  */
-function applenews_op($operation, $channel_id, $entity, $entity_type, ApplenewsExport $export = NULL) {
+function applenews_op($operation, $channel_id, $entity, $entity_type, ApplenewsExport $export = NULL, $metadata = []) {
   $result = FALSE;
   /** @var EntityDrupalWrapper $entity_wrapper */
   $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
@@ -893,8 +915,10 @@ function applenews_op($operation, $channel_id, $entity, $entity_type, ApplenewsE
   $data = NULL;
   if ($operation != 'delete') {
     $data = applenews_entity_export($export, $entity);
-    if (!empty($settings['metadata'])) {
-      $data['metadata'] = json_encode($settings['metadata']);
+    if (!empty($metadata)) {
+      $data['metadata'] = json_decode($data['metadata'], TRUE);
+      $data['metadata'] = array_merge($data['metadata'], $metadata);
+      $data['metadata'] = json_encode($data['metadata']);
     }
   }
 
