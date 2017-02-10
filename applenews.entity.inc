@@ -29,9 +29,13 @@ function applenews_entity_load($entities, $type) {
  */
 function applenews_entity_insert($entity, $type) {
   // Save Apple News entity settings.
+  $settings = NULL;
   if ($settings = _applenews_entity_settings_process($entity, $type)) {
     _applenews_entity_settings_save('insert', $entity, $type, $settings);
   }
+
+  // Allow others to alter the per-entity $settings before use.
+  drupal_alter('applenews_entity_settings', $settings, $entity, $type);
 
   if (!empty($settings['publish_flag'])) {
     applenews_entity_push('insert', $entity, $type, $settings);
@@ -43,9 +47,13 @@ function applenews_entity_insert($entity, $type) {
  */
 function applenews_entity_update($entity, $type) {
   // Save Apple News entity settings.
+  $settings = NULL;
   if ($settings = _applenews_entity_settings_process($entity, $type)) {
     _applenews_entity_settings_save('update', $entity, $type, $settings);
   }
+
+  // Allow others to alter the per-entity $settings before use.
+  drupal_alter('applenews_entity_settings', $settings, $entity, $type);
 
   if (!empty($settings['publish_flag'])) {
     applenews_entity_push('update', $entity, $type, $settings);
@@ -84,9 +92,8 @@ function _applenews_entity_settings_process($entity, $type) {
     $settings['sections'] = $sections;
     $settings['is_preview'] = isset($settings['is_preview']) ? (bool)$settings['is_preview'] : FALSE;
 
-    // Allow others to alter the per-entity $settings, which allows custom
-    // logic around publishing and draft mode.
-    drupal_alter('applenews_entity_settings', $settings, $entity, $type);
+    // Allow others to alter the per-entity $settings before save.
+    drupal_alter('applenews_entity_settings_pre_save', $settings, $entity, $type);
 
     return $settings;
   }
