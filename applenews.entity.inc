@@ -83,6 +83,11 @@ function _applenews_entity_settings_process($entity, $type) {
     $settings['channels'] = $channels;
     $settings['sections'] = $sections;
     $settings['is_preview'] = isset($settings['is_preview']) ? (bool)$settings['is_preview'] : FALSE;
+
+    // Allow others to alter the per-entity $settings, which allows custom
+    // logic around publishing and draft mode.
+    drupal_alter('applenews_entity_settings', $settings, $entity, $type);
+
     return $settings;
   }
 }
