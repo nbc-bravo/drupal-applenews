@@ -324,6 +324,47 @@ function applenews_schema() {
     ],
   ];
 
+  $schema['applenews_entity_settings'] = [
+    'description' => 'Store per-entity Apple News settings.',
+    'fields' => [
+      'entity_type' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'Entity type',
+      ],
+      'entity_id' => [
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Entity ID',
+      ],
+      'revision_id' => [
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Revision ID',
+      ],
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+        'description' => 'Apple News settings for this entity.',
+      ),
+    ],
+    'primary key' => [
+      'entity_type',
+      'entity_id',
+      'revision_id',
+    ],
+    'indexes' => [
+      'entity_id' => ['entity_id'],
+    ],
+  ];
+
   return $schema;
 }
 
@@ -352,4 +393,51 @@ function applenews_uninstall() {
   variable_del('applenews_export_directory');
   variable_del('applenews_help_format');
   variable_del('applenews_batch_export_status');
+}
+
+/**
+ * Add new table for persisting Apple News settings per-entity.
+ */
+function applenews_update_7001() {
+  $applenews_entity_settings = [
+    'description' => 'Store per-entity Apple News settings.',
+    'fields' => [
+      'entity_type' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'Entity type',
+      ],
+      'entity_id' => [
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Entity ID',
+      ],
+      'revision_id' => [
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Revision ID',
+      ],
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+        'description' => 'Apple News settings for this entity.',
+      ),
+    ],
+    'primary key' => [
+      'entity_type',
+      'entity_id',
+      'revision_id',
+    ],
+    'indexes' => [
+      'entity_id' => ['entity_id'],
+    ],
+  ];
+  db_create_table('applenews_entity_settings', $applenews_entity_settings);
 }

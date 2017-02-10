@@ -33,11 +33,10 @@ function _applenews_form_alter_node_form(&$form, &$form_state) {
 
   // Entity object.
   if ($entity = menu_get_object()) {
-    $entity = menu_get_object();
     $entity_id = $entity->nid;
     // Use entity ID value as revision ID.
     $revision_id = $entity_id;
-  };
+  }
 
   // Exports.
   $exports = applenews_exports_enabled();
@@ -115,14 +114,13 @@ function _applenews_form_alter_node_form(&$form, &$form_state) {
       $label = t('Publish new content to Apple News');
       $description = '';
     }
-    $form['applenews']['applenews_publish_flag'] = [
+    $form['applenews']['publish_flag'] = [
       '#type' => 'checkbox',
       '#title' => $label,
       '#prefix' => '<div><strong>' . $description . '</strong></div>',
       '#description' => t('Check this option if you would like to post this content to Apple News.'),
     ];
-    $form['applenews']['applenews_publish_flag']['#default_value']
-      = !empty($article_id) ? TRUE : FALSE;
+    $form['applenews']['publish_flag']['#default_value'] = !empty($entity->applenews['publish_flag']) ? $entity->applenews['publish_flag'] : FALSE;
   }
 
   // Pushed.
@@ -144,6 +142,7 @@ function _applenews_form_alter_node_form(&$form, &$form_state) {
       '#prefix' => '<div><strong>' . t('Share URL') . '</strong></div>',
     ];
     // Delete.
+    // @todo does not handle multiple channels
     if (count($api_channels)) {
       $link = l(t('Delete'), 'admin/config/content/applenews/'
         . $entity_type . '/'
@@ -180,13 +179,13 @@ function _applenews_form_alter_node_form(&$form, &$form_state) {
         '!link' => l(t('Exports'), 'admin/config/content/applenews')
       ]),
       '#options' => $export_options,
-      '#default_value' => empty($default_export) ? NULL : $default_export->id,
+      '#default_value' => !empty($entity->applenews['exports']) ? $entity->applenews['exports'] : (!empty($default_export) ? $default_export->id : NULL),
     ];
     // When new content show export dropdown when the checkbox is selected.
     if (empty($article_id)) {
       $form['applenews']['exports']['#states'] = [
         'invisible' => [
-          ':input[name="applenews[applenews_publish_flag]"]' => ['checked' => FALSE],
+          ':input[name="applenews[publish_flag]"]' => ['checked' => FALSE],
         ]
       ];
     }
@@ -195,11 +194,34 @@ function _applenews_form_alter_node_form(&$form, &$form_state) {
 
     // Get configuration form for the AppleNewsAPI exportable entity.
     $channels_element = $export_config_form['additional_settings']['metadata_tab']['channels'];
-    // Set Apple News default values for current entity.
-    if (!empty($article) && !empty($article_id) && count($api_channels)) {
+    // Set default values according to what was previously stored for the
+    // entity.
+    if (isset($entity->applenews['channels']) && isset($entity->applenews['sections'])) {
+      // We have existing values, unset defaults from export.
       foreach (element_children($channels_element) as $key) {
         unset($channels_element[$key]['#default_value']);
       }
+      // Set default values.
+      foreach ($entity->applenews['channels'] as $channel_id) {
+        $key = 'channel-' . $channel_id;
+        if (!empty($channels_element[$key])) {
+          $channels_element[$key]['#default_value'] = TRUE;
+        }
+        foreach ($entity->applenews['sections'] as $section_id) {
+          $key = 'section-' . $channel_id . '-' . $section_id;
+          if (!empty($channels_element[$key])) {
+            $channels_element[$key]['#default_value'] = TRUE;
+          }
+        }
+      }
+    }
+    // Use export defaults.
+    elseif (!empty($article) && !empty($article_id) && count($api_channels)) {
+      // We have existing values, unset defaults from export.
+      foreach (element_children($channels_element) as $key) {
+        unset($channels_element[$key]['#default_value']);
+      }
+      // Set default values.
       foreach ($article['sections'] as $section_id => $channel_id) {
         $key = 'channel-' . $channel_id;
         if (!empty($channels_element[$key])) {
@@ -211,6 +233,7 @@ function _applenews_form_alter_node_form(&$form, &$form_state) {
         }
       }
     }
+
     $form['applenews']['channels'] = &$channels_element;
     unset($form['applenews']['channels']['#weight']);
     
@@ -230,8 +253,11 @@ function _applenews_form_alter_node_form(&$form, &$form_state) {
     $is_preview['#description'] = t('Indicates whether this article should be public (live) or should be a preview that is only visible to members of your channel.');
     $form['applenews']['is_preview'] = &$is_preview;
     unset($form['applenews']['is_preview']['#weight']);
+    if (isset($entity->applenews['is_preview'])) {
+      $form['applenews']['is_preview']['#default_value'] = $entity->applenews['is_preview'];
+    }
 
-    // Preview (Downloadable atchives).
+    // Preview (Downloadable archives).
     if (@$default_export->enabled && !empty($entity_id) && !empty($revision_id)) {
       $link = l(t('Download'), 'admin/config/content/applenews/' . $entity_type . '/' . $entity_id . '/' . $revision_id . '/download');
       $msg = t('!link the Apple News generated document (use the News Preview app to preview the article).', ['!link' => $link]);

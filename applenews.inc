@@ -708,6 +708,7 @@ function applenews_post($channel_id, $entity_type, EntityDrupalWrapper $entity_w
           'type'         => !empty($response->data->type) ? $response->data->type : '',
           'links'        => !empty($response->data->links) ? $response->data->links : '',
           'isSponsored'  => !empty($response->data->isSponsored) ? $response->data->isSponsored : '',
+          'isPreview'    => !empty($response->data->isPreview) ? $response->data->isPreview : '',
         ]
       ],
     ];
@@ -815,6 +816,7 @@ function applenews_update($channel_id, $entity_type, EntityDrupalWrapper $entity
             'type'         => !empty($response->data->type) ? $response->data->type : '',
             'links'        => !empty($response->data->links) ? $response->data->links : '',
             'isSponsored'  => !empty($response->data->isSponsored) ? $response->data->isSponsored : '',
+            'isPreview'    => !empty($response->data->isPreview) ? $response->data->isPreview : '',
           ]
         ],
       ];

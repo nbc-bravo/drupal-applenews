@@ -381,8 +381,8 @@ function applenews_element_info() {
  * @see applenews_form_alter()
  */
 function _applenews_form_alter_node_form_submit(&$form, &$form_state) {
-  $form['#node']->applenews['applenews_publish_flag']
-    = !empty($form_state['values']['applenews']['applenews_publish_flag']);
+  $form['#node']->applenews['publish_flag']
+    = !empty($form_state['values']['applenews']['publish_flag']);
 }
 
 /**

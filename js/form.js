@@ -19,7 +19,7 @@
       // Vertical tab summary.
       $('fieldset.applenews-options', context).drupalSetSummary(function (context) {
 
-        if ($('.form-item-applenews-applenews-publish-flag input:checked', context).length) {
+        if ($('.form-item-applenews-publish-flag input:checked', context).length) {
 
           // Check first channel from the list if non selected.
           // Otherwise the module doesn't know where to publish current content.
@@ -49,7 +49,7 @@
   };
 
   /**
-   * Show/Hide default channels based on the valude of the Publish checkbox.
+   * Show/Hide default channels based on the value of the Publish checkbox.
    */
   function setDefaultChannel(show) {
     if ($('#edit-applenews-channels').hasClass("applenews-channels-add-form")) {
