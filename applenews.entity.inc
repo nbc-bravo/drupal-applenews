@@ -204,19 +204,27 @@ function applenews_entity_push($op, $entity, $type, $settings = NULL) {
  */
 function applenews_entity_delete($entity, $type) {
   module_load_include('inc', 'applenews');
+
+  /** @var EntityDrupalWrapper $wrapper */
+  $wrapper = entity_metadata_wrapper($type, $entity);
   if ($channel_ids = applenews_load_article_channels($entity, $type)) {
     foreach ($channel_ids as $channel_id) {
       if (!applenews_op('delete', $channel_id, $entity, $type)) {
-        $wrapper = entity_metadata_wrapper($type, $entity);
         $channel = applenews_channel($channel_id);
-        drupal_set_message(
-          t('Unable to delete %title from %channel',
-            [
-              '%title'   => $wrapper->label(),
-              '%channel' => filter_xss($channel->name)
-            ]), 'error'
+        drupal_set_message(t('Unable to delete %title from %channel', [
+            '%title' => $wrapper->label(),
+            '%channel' => filter_xss($channel->name)
+          ]),
+          'error'
         );
       }
     }
   }
+
+  // Delete the per-entity settings.
+  db_delete('applenews_entity_settings')
+    ->condition('entity_type', $type)
+    ->condition('entity_id', $wrapper->getIdentifier())
+    ->condition('revision_id', $wrapper->getIdentifier())
+    ->execute();
 }
