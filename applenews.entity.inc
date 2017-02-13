@@ -55,10 +55,15 @@ function applenews_entity_save($op, $entity, $type) {
     _applenews_entity_settings_save($op, $entity, $type, $entity->applenews);
 
     // Allow others to alter the per-entity $settings before use.
-    drupal_alter('applenews_entity_settings', $entity->applenews, $entity, $type);
+    drupal_alter('applenews_entity_settings_pre_publish', $entity->applenews, $entity, $type, $op);
 
     if (!empty($entity->applenews['publish_flag']) && $entity->applenews['publish_flag']) {
-      applenews_entity_push('update', $entity, $type);
+      try {
+        applenews_entity_push('update', $entity, $type);
+      }
+      catch (Exception $e) {
+        drupal_set_message($e->getMessage());
+      }
     }
   }
 }
@@ -107,6 +112,11 @@ function _applenews_entity_settings_save($op, $entity, $type, $settings) {
  *   Entity object.
  * @param string $type
  *   Entity type.
+ *
+ * @return TRUE on success, FALSE on failure.
+ *
+ * @throws Exception
+ *   When an error happened publishing the entity, an exception is thrown.
  */
 function applenews_entity_push($op, $entity, $type) {
   module_load_include('inc', 'applenews');
@@ -132,35 +142,24 @@ function applenews_entity_push($op, $entity, $type) {
     }
   }
 
-  try {
-    foreach (applenews_channels(TRUE) as $channel_id => $channel) {
-      if (!in_array($channel_id, $settings['channels'])) {
-        continue;
-      }
-      $metadata = [];
-      foreach ($channel['sections'] as $section_id => $section) {
-        if (in_array($section_id, $settings['sections'])) {
-          $metadata['data']['links']['sections'][] = applenews_section_url($section_id);
-        }
-      }
-      $metadata['data']['isPreview'] = $settings['is_preview'];
-      if (!applenews_op($op, $channel_id, $entity, $type, $export, $metadata)) {
-        drupal_set_message(t('Unable to push %title to %channel', [
-            '%title' => $wrapper->label(),
-            '%channel' => $channel['name'],
-          ]),
-          'error'
-        );
+
+  foreach (applenews_channels(TRUE) as $channel_id => $channel) {
+    if (!in_array($channel_id, $settings['channels'])) {
+      continue;
+    }
+    $metadata = [];
+    foreach ($channel['sections'] as $section_id => $section) {
+      if (in_array($section_id, $settings['sections'])) {
+        $metadata['data']['links']['sections'][] = applenews_section_url($section_id);
       }
     }
-  }
-  catch (ApplenewsInvalidExport $e) {
-    drupal_set_message(t('Unable to push %title to Apple News: @message', [
+    $metadata['data']['isPreview'] = $settings['is_preview'];
+    if (!applenews_op($op, $channel_id, $entity, $type, $export, $metadata)) {
+      throw new Exception(t('Unable to push %title to %channel', [
         '%title' => $wrapper->label(),
-        '@message' => $e->getMessage(),
-      ]),
-      'error'
-    );
+        '%channel' => $channel['name'],
+      ]));
+    }
   }
 }
 
