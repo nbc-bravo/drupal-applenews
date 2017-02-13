@@ -28,74 +28,38 @@ function applenews_entity_load($entities, $type) {
  * Implements hook_entity_insert().
  */
 function applenews_entity_insert($entity, $type) {
-  // Save Apple News entity settings.
-  $settings = NULL;
-  if ($settings = _applenews_entity_settings_process($entity, $type)) {
-    _applenews_entity_settings_save('insert', $entity, $type, $settings);
-  }
-
-  // Allow others to alter the per-entity $settings before use.
-  drupal_alter('applenews_entity_settings', $settings, $entity, $type);
-
-  if (!empty($settings['publish_flag'])) {
-    applenews_entity_push('insert', $entity, $type, $settings);
-  }
+  applenews_entity_save('insert', $entity, $type);
 }
 
 /**
  * Implements hook_entity_update().
  */
 function applenews_entity_update($entity, $type) {
-  // Save Apple News entity settings.
-  $settings = NULL;
-  if ($settings = _applenews_entity_settings_process($entity, $type)) {
-    _applenews_entity_settings_save('update', $entity, $type, $settings);
-  }
-
-  // Allow others to alter the per-entity $settings before use.
-  drupal_alter('applenews_entity_settings', $settings, $entity, $type);
-
-  if (!empty($settings['publish_flag'])) {
-    applenews_entity_push('update', $entity, $type, $settings);
-  }
+  applenews_entity_save('update', $entity, $type);
 }
 
 /**
- * Process the form representation of Apple News entity settings into something
- * a little more manageble.
+ * Helper function that handles entity insert and update by an $op pararm.
+ * Saves the Apple News entity specific settings and pushed to Apple News.
  *
+ * @param string $op
+ *   Operation happening on $entity, one of 'insert' or 'update'.
  * @param object $entity
  *   Entity object.
  * @param string $type
  *   Entity type.
- *
- * @return array|null
  */
-function _applenews_entity_settings_process($entity, $type) {
-  module_load_include('inc', 'applenews');
-
+function applenews_entity_save($op, $entity, $type) {
   if (isset($entity->applenews)) {
-    $settings = $entity->applenews;
-    // Some of $entity->applenews is form specific, clean it up a bit.
-    $channels = $sections = [];
-    foreach (applenews_channels(TRUE) as $channel_id => $channel) {
-      if (!empty($settings['channels']['channel-' . $channel_id])) {
-        $channels[] = $channel_id;
-        foreach ($channel['sections'] as $section_id => $section) {
-          if (!empty($settings['channels']['section-' . $channel_id . '-' . $section_id])) {
-            $sections[] = $section_id;
-          }
-        }
-      }
+    // Save Apple News entity settings.
+    _applenews_entity_settings_save($op, $entity, $type, $entity->applenews);
+
+    // Allow others to alter the per-entity $settings before use.
+    drupal_alter('applenews_entity_settings', $entity->applenews, $entity, $type);
+
+    if (!empty($entity->applenews['publish_flag']) && $entity->applenews['publish_flag']) {
+      applenews_entity_push('update', $entity, $type);
     }
-    $settings['channels'] = $channels;
-    $settings['sections'] = $sections;
-    $settings['is_preview'] = isset($settings['is_preview']) ? (bool)$settings['is_preview'] : FALSE;
-
-    // Allow others to alter the per-entity $settings before save.
-    drupal_alter('applenews_entity_settings_pre_save', $settings, $entity, $type);
-
-    return $settings;
   }
 }
 
@@ -116,6 +80,8 @@ function _applenews_entity_settings_save($op, $entity, $type, $settings) {
 
   /** @var EntityDrupalWrapper $wrapper */
   $wrapper = entity_metadata_wrapper($type, $entity);
+  // Allow others to alter the per-entity $settings before save.
+  drupal_alter('applenews_entity_settings_pre_save', $settings, $entity, $type);
   $record = [
     'entity_type' => $type,
     'entity_id' => $wrapper->getIdentifier(),
@@ -141,16 +107,8 @@ function _applenews_entity_settings_save($op, $entity, $type, $settings) {
  *   Entity object.
  * @param string $type
  *   Entity type.
- * @param array $settings
- *   Associative array of Apple News entity settings with the following keys:
- *   - channels: Array of channel id's to publish the entity to. Required.
- *   - sections: Array of section id's to publish the entity to. Optional.
- *   - is_preview: Boolean indicating if this entity should be published as a
- *     Draft or not. Optional, defaults to export configuration.
- *   If a value is not passed this function will attempt to load them from the
- *   database.
  */
-function applenews_entity_push($op, $entity, $type, $settings = NULL) {
+function applenews_entity_push($op, $entity, $type) {
   module_load_include('inc', 'applenews');
 
   /** @var EntityDrupalWrapper $wrapper */
@@ -158,7 +116,10 @@ function applenews_entity_push($op, $entity, $type, $settings = NULL) {
   $export = applenews_entity_get_export($type, $wrapper->getIdentifier());
 
   // Attempt to load settings from the database.
-  if (!$settings) {
+  if (isset($entity->applenews)) {
+    $settings = $entity->applenews;
+  }
+  else {
     $settings = db_select('applenews_entity_settings', 'a')
       ->fields('a', ['data'])
       ->condition('entity_type', $type)
@@ -168,9 +129,6 @@ function applenews_entity_push($op, $entity, $type, $settings = NULL) {
       ->fetchField();
     if ($settings) {
       $settings = unserialize($settings);
-    }
-    else {
-      return;
     }
   }
 

@@ -376,13 +376,49 @@ function applenews_element_info() {
 }
 
 /**
- * FAPI #submit callback.
+ * #entity_builders callback.
  *
  * @see applenews_form_alter()
  */
-function _applenews_form_alter_node_form_submit(&$form, &$form_state) {
-  $form['#node']->applenews['publish_flag']
-    = !empty($form_state['values']['applenews']['publish_flag']);
+function _applenews_form_alter_entity_builder($entity_type, $entity, $form, $form_state) {
+  if (isset($entity->applenews)) {
+    $entity->applenews['publish_flag'] = !empty($form_state['values']['applenews']['publish_flag']);
+    // Clean up the form representation of the applenews settings.
+    $entity->applenews = _applenews_entity_settings_process($entity->applenews);
+  }
+}
+
+/**
+ * Process the form representation of Apple News entity settings into something
+ * a little more manageble.
+ *
+ * @param object $entity
+ *   Entity object.
+ * @param string $type
+ *   Entity type.
+ *
+ * @return array|null
+ */
+function _applenews_entity_settings_process($settings) {
+  module_load_include('inc', 'applenews');
+
+  // Some of $entity->applenews is form specific, clean it up a bit.
+  $channels = $sections = [];
+  foreach (applenews_channels(TRUE) as $channel_id => $channel) {
+    if (!empty($settings['channels']['channel-' . $channel_id])) {
+      $channels[] = $channel_id;
+      foreach ($channel['sections'] as $section_id => $section) {
+        if (!empty($settings['channels']['section-' . $channel_id . '-' . $section_id])) {
+          $sections[] = $section_id;
+        }
+      }
+    }
+  }
+  $settings['channels'] = $channels;
+  $settings['sections'] = $sections;
+  $settings['is_preview'] = isset($settings['is_preview']) ? (bool)$settings['is_preview'] : FALSE;
+
+  return $settings;
 }
 
 /**

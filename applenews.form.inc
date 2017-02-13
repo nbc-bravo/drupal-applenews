@@ -8,12 +8,10 @@
  * Implements hook_form_alter().
  */
 function applenews_form_alter(&$form, &$form_state, $form_id) {
-
   if (preg_match('/_node_form$/', $form_id)) {
     _applenews_form_alter_node_form($form, $form_state);
-    $form['#submit'][] = '_applenews_form_alter_node_form_submit';
+    $form['#entity_builders'][] = '_applenews_form_alter_entity_builder';
   }
-
 }
 
 /**
