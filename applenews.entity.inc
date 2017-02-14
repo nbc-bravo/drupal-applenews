@@ -86,7 +86,7 @@ function _applenews_entity_settings_save($op, $entity, $type, $settings) {
   /** @var EntityDrupalWrapper $wrapper */
   $wrapper = entity_metadata_wrapper($type, $entity);
   // Allow others to alter the per-entity $settings before save.
-  drupal_alter('applenews_entity_settings_pre_save', $settings, $entity, $type);
+  drupal_alter('applenews_entity_settings_pre_save', $settings, $entity, $type, $op);
   $record = [
     'entity_type' => $type,
     'entity_id' => $wrapper->getIdentifier(),

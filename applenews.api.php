@@ -119,3 +119,60 @@ function hook_applenews_update($article_id, $article_revision_id, $channel_id, E
  */
 function hook_applenews_delete($article_id, $channel_id, EntityDrupalWrapper $entity_wrapper, $entity_type) {
 }
+
+/**
+ * Alter the per-entity settings prior to publishing. This allows module authors
+ * to add their own business logic around Apple News publishing. You can for
+ * example manually enforce a policy that unpublished posts do not get published
+ * to Apple News.
+ *
+ * @param array $settings
+ *   Associative array of per-entity Apple News settings, with the following
+ *   keys:
+ *   - publish_flag: Required. Flag to indicate whether the entity should be
+ *   published to Apple News. Setting this to FALSE will avoid publishing to
+ *   Apple News.
+ *   - is_preview: If TRUE, the entity will be published as a Draft to Apple
+ *   News, otherwise, it will be published live.
+ *   - channels: Array of channel id's that this entity should be published to.
+ *   - sections: Array of sections id's that this entity should be published to.
+ * @param object $entity
+ *   Entity object.
+ * @param string $type
+ *   Entity type.
+ * @param string $op
+ *   The Apple News publish operation being performed on the entity. One of
+ *   'insert' or 'update'.
+ */
+function hook_applenews_entity_settings_pre_publish_alter(&$settings, $entity, $type, $op) {
+}
+
+/**
+ * Alter the per-entity settings prior to persisting the settings in the
+ * database. This allows module authors to affect the stored values of the
+ * per-entity settings. You could for example detect a change in the entity
+ * from published to unpublished, take action to delete the article in Apple
+ * News, and change the $settings['is_publish'] flag to FALSE to force an editor
+ * to re-check the publish flag should they want to publish the article again in
+ * the future.
+ *
+ * @param array $settings
+ *   Associative array of per-entity Apple News settings, with the following
+ *   keys:
+ *   - publish_flag: Required. Flag to indicate whether the entity should be
+ *   published to Apple News. Setting this to FALSE will avoid publishing to
+ *   Apple News.
+ *   - is_preview: If TRUE, the entity will be published as a Draft to Apple
+ *   News, otherwise, it will be published live.
+ *   - channels: Array of channel id's that this entity should be published to.
+ *   - sections: Array of sections id's that this entity should be published to.
+ * @param object $entity
+ *   Entity object.
+ * @param string $type
+ *   Entity type.
+ * @param string $op
+ *   The Apple News publish operation being performed on the entity. One of
+ *   'insert' or 'update'.
+ */
+function hook_applenews_entity_settings_pre_save_alter(&$settings, $entity, $type, $op) {
+}
