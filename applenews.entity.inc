@@ -51,15 +51,29 @@ function applenews_entity_update($entity, $type) {
  */
 function applenews_entity_save($op, $entity, $type) {
   if (isset($entity->applenews)) {
+    /** @var EntityDrupalWrapper $wrapper */
+    $wrapper = entity_metadata_wrapper($type, $entity);
+
+    // If $op is 'insert', the Apple News $op is similarily 'insert'. However,
+    // if $op is 'update', it may be that the Apple News $op is 'insert' if
+    // it hasn't been pushed yet.
+    if ($op === 'update') {
+      $post = new ApplenewsDatabase();
+      $post->setPostId($type, $wrapper->getIdentifier(), $wrapper->getIdentifier());
+      if (!$post->getArticle()) {
+        $op = 'insert';
+      }
+    }
+
     // Save Apple News entity settings.
-    _applenews_entity_settings_save($op, $entity, $type, $entity->applenews);
+    _applenews_entity_settings_save($entity, $type, $entity->applenews);
 
     // Allow others to alter the per-entity $settings before use.
     drupal_alter('applenews_entity_settings_pre_publish', $entity->applenews, $entity, $type, $op);
 
     if (!empty($entity->applenews['publish_flag']) && $entity->applenews['publish_flag']) {
       try {
-        applenews_entity_push('update', $entity, $type);
+        applenews_entity_push($op, $entity, $type);
       }
       catch (Exception $e) {
         drupal_set_message($e->getMessage());
@@ -71,8 +85,6 @@ function applenews_entity_save($op, $entity, $type) {
 /**
  * Save the Apple News settings for a particular entity.
  *
- * @param string $op
- *   One of 'insert' or 'update'.
  * @param object $entity
  *   Entity object.
  * @param string $type
@@ -80,7 +92,7 @@ function applenews_entity_save($op, $entity, $type) {
  * @param array $settings
  *   Settings to save for this entity.
  */
-function _applenews_entity_settings_save($op, $entity, $type, $settings) {
+function _applenews_entity_settings_save($entity, $type, $settings) {
   module_load_include('inc', 'applenews');
 
   /** @var EntityDrupalWrapper $wrapper */
@@ -93,13 +105,19 @@ function _applenews_entity_settings_save($op, $entity, $type, $settings) {
     'revision_id' => $wrapper->getIdentifier(),
     'data' => $settings,
   ];
-  if ($op === 'insert') {
-    drupal_write_record('applenews_entity_settings', $record);
-  }
-  elseif ($op === 'update') {
+  // Check if a record for this node already exists.
+  $exists = db_query('SELECT entity_id FROM {applenews_entity_settings} WHERE entity_type = :entity_type AND entity_id = :entity_id AND revision_id = :revision_id', [
+      ':entity_type' => $type,
+      ':entity_id' => $wrapper->getIdentifier(),
+      ':revision_id' => $wrapper->getIdentifier(),
+    ])->fetchField();
+  if ($exists) {
     drupal_write_record('applenews_entity_settings', $record,
       ['entity_type', 'entity_id', 'revision_id']
     );
+  }
+  else {
+    drupal_write_record('applenews_entity_settings', $record);
   }
 }
 
