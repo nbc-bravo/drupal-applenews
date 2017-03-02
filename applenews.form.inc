@@ -101,7 +101,7 @@ function _applenews_form_alter_node_form(&$form, &$form_state) {
   if ($exportable) {
     if (!empty($entity->changed) && !empty($article_id) && !empty($article['postdate'])) {
       $label = t('Publish updates to Apple News');
-      if ($entity->created != $entity->changed && $entity->changed != $article['postdate']) {
+      if ($entity->created != $entity->changed && $entity->changed > $article['postdate']) {
         $description = t('The article has local changes that are not published to Apple News.');
       }
       else {
