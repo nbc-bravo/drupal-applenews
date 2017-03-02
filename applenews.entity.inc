@@ -66,7 +66,7 @@ function applenews_entity_save($op, $entity, $type) {
     }
 
     // Save Apple News entity settings.
-    _applenews_entity_settings_save($entity, $type, $entity->applenews);
+    _applenews_entity_settings_save($entity, $type, $entity->applenews, $op);
 
     // Allow others to alter the per-entity $settings before use.
     drupal_alter('applenews_entity_settings_pre_publish', $entity->applenews, $entity, $type, $op);
@@ -91,8 +91,11 @@ function applenews_entity_save($op, $entity, $type) {
  *   Entity type.
  * @param array $settings
  *   Settings to save for this entity.
+ * @param string $op
+ *   Operation being performed on the Apple News article. One of 'update' or
+ *   'insert'.
  */
-function _applenews_entity_settings_save($entity, $type, $settings) {
+function _applenews_entity_settings_save($entity, $type, &$settings, $op) {
   module_load_include('inc', 'applenews');
 
   /** @var EntityDrupalWrapper $wrapper */
