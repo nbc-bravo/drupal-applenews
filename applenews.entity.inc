@@ -76,6 +76,7 @@ function applenews_entity_save($op, $entity, $type) {
         applenews_entity_push($op, $entity, $type);
       }
       catch (Exception $e) {
+        watchdog_exception('applenews', $e);
         drupal_set_message($e->getMessage());
       }
     }
@@ -135,9 +136,6 @@ function _applenews_entity_settings_save($entity, $type, &$settings, $op) {
  *   Entity type.
  *
  * @return TRUE on success, FALSE on failure.
- *
- * @throws Exception
- *   When an error happened publishing the entity, an exception is thrown.
  */
 function applenews_entity_push($op, $entity, $type) {
   module_load_include('inc', 'applenews');
@@ -163,7 +161,6 @@ function applenews_entity_push($op, $entity, $type) {
     }
   }
 
-
   foreach (applenews_channels(TRUE) as $channel_id => $channel) {
     if (!in_array($channel_id, $settings['channels'])) {
       continue;
@@ -175,12 +172,7 @@ function applenews_entity_push($op, $entity, $type) {
       }
     }
     $metadata['data']['isPreview'] = $settings['is_preview'];
-    if (!applenews_op($op, $channel_id, $entity, $type, $export, $metadata)) {
-      throw new Exception(t('Unable to push %title to %channel', [
-        '%title' => $wrapper->label(),
-        '%channel' => $channel['name'],
-      ]));
-    }
+    applenews_op($op, $channel_id, $entity, $type, $export, $metadata);
   }
 }
 
@@ -194,11 +186,17 @@ function applenews_entity_delete($entity, $type) {
   $wrapper = entity_metadata_wrapper($type, $entity);
   if ($channel_ids = applenews_load_article_channels($entity, $type)) {
     foreach ($channel_ids as $channel_id) {
-      if (!applenews_op('delete', $channel_id, $entity, $type)) {
+      try {
+        applenews_op('delete', $channel_id, $entity, $type);
+      }
+      catch (Exception $e) {
+        // Log the exception
+        watchdog_exception('applenews', $e);
+        // Notify the user the request failed.
         $channel = applenews_channel($channel_id);
         drupal_set_message(t('Unable to delete %title from %channel', [
             '%title' => $wrapper->label(),
-            '%channel' => filter_xss($channel->name)
+            '%channel' => filter_xss($channel->name),
           ]),
           'error'
         );

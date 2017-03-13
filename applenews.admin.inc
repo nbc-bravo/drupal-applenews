@@ -1115,25 +1115,23 @@ function applenews_settings_delete_article_form_submit($form, &$form_state) {
 
   // Delete an Apple News article.
   $entity = entity_load_single($form_state['storage']['entity_type'], $form_state['storage']['entity_id']);
-  $success = applenews_op('delete', $form_state['storage']['channel_id'], $entity, $form_state['storage']['entity_type']);
-  // If successful request.
-  if ($success) {
-    drupal_set_message(
-      t('<em>@title</em> successfully removed from <em>@channel</em>',
-        [
-          '@title'   => $form_state['storage']['title'],
-          '@channel' => $form_state['storage']['channel_name'],
-        ]));
+  try {
+    applenews_op('delete', $form_state['storage']['channel_id'], $entity, $form_state['storage']['entity_type']);
+    drupal_set_message(t('<em>@title</em> successfully removed from <em>@channel</em>', [
+      '@title'   => $form_state['storage']['title'],
+      '@channel' => $form_state['storage']['channel_name'],
+    ]));
   }
-  else {
-    drupal_set_message(
-      t('Unable to delete <em>@title</em> from <em>@channel</em>',
-        [
-          '@title'   => $form_state['storage']['title'],
-          '@channel' => $form_state['storage']['channel_name']
-        ]), 'warning'
+  catch (Exception $e) {
+    watchdog_exception('applenews', $e);
+    drupal_set_message(t('Unable to delete <em>@title</em> from <em>@channel</em>', [
+        '@title' => $form_state['storage']['title'],
+        '@channel' => $form_state['storage']['channel_name']
+      ]),
+      'warning'
     );
   }
+
   drupal_goto($form_state['storage']['return_path']);
 }
 

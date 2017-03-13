@@ -128,44 +128,38 @@ function applenews_batch_post($export_id, $entity_type, $entity, $total_count, &
         // Process only non-published articles.
         if (!$export_log) {
           // Post an article to Apple News.
-          if ($success = applenews_op('insert', $channel_id, $entity, $entity_type, $export)) {
-            $context['results']['info']['insert']++;
-          }
+          applenews_op('insert', $channel_id, $entity, $entity_type, $export);
+          $context['results']['info']['insert']++;
         }
         else {
           // Update an article only if the entity was updated since the last
           // export.
           if ($export_log['postdate'] < $entity->changed) {
-            if ($success = applenews_op('update', $channel_id, $entity, $entity_type, $export)) {
-              $context['results']['info']['update']++;
-            }
+            applenews_op('update', $channel_id, $entity, $entity_type, $export);
+            $context['results']['info']['update']++;
           }
           else {
-            $success = TRUE;
             $context['results']['info']['skip']++;
           }
         }
       }
-      // Catch exception from the call to applenews_op, mark the export to this
-      // channel as failed and increment the number of items skipped.
-      catch (ApplenewsInvalidExport $e) {
-        $success = FALSE;
+      // Catch any exceptions from the call to, mark the export to this channel
+      // as failed and increment the number of items skipped.
+      catch (Exception $e) {
+        watchdog_exception('applenews', $e);
+        drupal_set_message(t('Unable to push %title to %channel', [
+            '%title'   => $wrapper->label(),
+            '%channel' => filter_xss($channel->name)
+          ]),
+          'error'
+        );
         $context['results']['info']['skip']++;
       }
-      if (!$success) {
-        drupal_set_message(
-          t('Unable to push %title to %channel',
-            [
-              '%title'   => $wrapper->label(),
-              '%channel' => filter_xss($channel->name)
-            ]), 'error'
-        );
-      }
     }
-    $context['results']['info']['count']
-      = $context['results']['info']['insert'] +
-        $context['results']['info']['update'] +
-        $context['results']['info']['skip'];
+    $context['results']['info']['count'] =
+      $context['results']['info']['insert'] +
+      $context['results']['info']['update'] +
+      $context['results']['info']['skip'];
     $context['results']['info']['step_count']++;
   }
 

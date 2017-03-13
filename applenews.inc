@@ -669,15 +669,17 @@ function applenews_batch_export_get_status($batch_name) {
  *   - files - Bundled files.
  *   - metadata - News metadata.
  *
- * @return bool
- *   Success.
+ * @throws ApplenewsAPIError
+ *   If the API returns an error response, an exception is thrown.
  */
 function applenews_post($channel_id, $entity_type, EntityDrupalWrapper $entity_wrapper, array $data) {
   module_load_include('inc', 'applenews', 'applenews.publisher_api');
+
   // Make POST request to Apple News via PublisherAPI.
   $response = applenews_post_article($channel_id, $data);
+
   // If successful request.
-  if (!isset($response->errors) && isset($response->data->id)) {
+  if (empty($response->errors) && isset($response->data->id)) {
     // Invoke Apple News insert hooks.
     module_invoke_all('applenews_insert', $response->data->id, $response->data->revision, $channel_id, $entity_wrapper, $entity_type, $data);
     $sections = [];
@@ -689,27 +691,22 @@ function applenews_post($channel_id, $entity_type, EntityDrupalWrapper $entity_w
       ];
     }
     $record = [
-      'entity'   => [
-        'article_id'          => $response->data->id,
+      'entity' => [
+        'article_id' => $response->data->id,
         'article_revision_id' => $response->data->revision,
-        'share_url'           => $response->data->shareUrl,
-        'postdate'            => REQUEST_TIME,
+        'share_url' => $response->data->shareUrl,
+        'postdate' => REQUEST_TIME,
       ],
-      'channels' => [
-        [
-          'channel_id' => $channel_id,
-        ]
-      ],
+      'channels' => [['channel_id' => $channel_id]],
       'sections' => $sections,
       'metadata' => [
-        'data' =>
-        [
-          'shareUrl'     => !empty($response->data->shareUrl) ? $response->data->shareUrl : '',
-          'type'         => !empty($response->data->type) ? $response->data->type : '',
-          'links'        => !empty($response->data->links) ? $response->data->links : '',
-          'isSponsored'  => !empty($response->data->isSponsored) ? $response->data->isSponsored : '',
-          'isPreview'    => !empty($response->data->isPreview) ? $response->data->isPreview : '',
-        ]
+        'data' => [
+          'shareUrl' => !empty($response->data->shareUrl) ? $response->data->shareUrl : '',
+          'type' => !empty($response->data->type) ? $response->data->type : '',
+          'links' => !empty($response->data->links) ? $response->data->links : '',
+          'isSponsored' => !empty($response->data->isSponsored) ? $response->data->isSponsored : '',
+          'isPreview' => !empty($response->data->isPreview) ? $response->data->isPreview : '',
+        ],
       ],
     ];
     $post = new ApplenewsDatabase();
@@ -717,13 +714,9 @@ function applenews_post($channel_id, $entity_type, EntityDrupalWrapper $entity_w
     $post->setEntityRevisionId($entity_wrapper->getIdentifier());
     $post->setEntityType($entity_type);
     $post->insert($record);
-    return TRUE;
   }
-  else {
-    watchdog('applenews', "Could not post an Apple News article @id",
-      ['@id' => $entity_wrapper->getIdentifier()],
-      WATCHDOG_NOTICE
-    );
+  elseif (!empty($response->errors)) {
+    throw new ApplenewsAPIError($response, $entity_type, $entity_wrapper->getIdentifier());
   }
   return FALSE;
 }
@@ -745,8 +738,7 @@ function applenews_post($channel_id, $entity_type, EntityDrupalWrapper $entity_w
  *   - files - Bundled files.
  *   - metadata - News metadata.
  *
- * @return bool
- *   Success.
+ * @throws ApplenewsAPIError
  */
 function applenews_update($channel_id, $entity_type, EntityDrupalWrapper $entity_wrapper, array $data) {
   module_load_include('inc', 'applenews', 'applenews.publisher_api');
@@ -774,18 +766,13 @@ function applenews_update($channel_id, $entity_type, EntityDrupalWrapper $entity
       // This will override previous revisions.
       $applenews_revision_id = $applenews_article->data->revision;
     }
-    /*
-    else {
-      $applenews_revision_id = $article->article_revision_id;
-    }
-    */
 
     $data['metadata']['data']['revision'] = $applenews_revision_id;
     $data['metadata'] = json_encode($data['metadata']);
     // Make POST request to Apple News via PublisherAPI.
     $response = applenews_update_article($article->article_id, $data);
     // If successful request.
-    if (!isset($response->errors) && isset($response->data->id)) {
+    if (empty($response->errors) && isset($response->data->id)) {
       // Invoke Apple News update hooks.
       module_invoke_all('applenews_update', $article->article_id, $article->article_revision_id, $channel_id, $entity_wrapper, $entity_type, $data);
       $sections = [];
@@ -797,49 +784,36 @@ function applenews_update($channel_id, $entity_type, EntityDrupalWrapper $entity
         ];
       }
       $record = [
-        'entity'   => [
-          'article_id'          => $response->data->id,
+        'entity' => [
+          'article_id' => $response->data->id,
           'article_revision_id' => $response->data->revision,
-          'share_url'           => $response->data->shareUrl,
-          'postdate'            => REQUEST_TIME,
+          'share_url' => $response->data->shareUrl,
+          'postdate' => REQUEST_TIME,
         ],
-        'channels' => [
-          [
-            'channel_id' => $channel_id,
-          ]
-        ],
+        'channels' => [['channel_id' => $channel_id]],
         'sections' => $sections,
         'metadata' => [
-          'data' =>
-          [
-            'shareUrl'     => !empty($response->data->shareUrl) ? $response->data->shareUrl : '',
-            'type'         => !empty($response->data->type) ? $response->data->type : '',
-            'links'        => !empty($response->data->links) ? $response->data->links : '',
-            'isSponsored'  => !empty($response->data->isSponsored) ? $response->data->isSponsored : '',
-            'isPreview'    => !empty($response->data->isPreview) ? $response->data->isPreview : '',
-          ]
+          'data' => [
+            'shareUrl' => !empty($response->data->shareUrl) ? $response->data->shareUrl : '',
+            'type' => !empty($response->data->type) ? $response->data->type : '',
+            'links' => !empty($response->data->links) ? $response->data->links : '',
+            'isSponsored' => !empty($response->data->isSponsored) ? $response->data->isSponsored : '',
+            'isPreview' => !empty($response->data->isPreview) ? $response->data->isPreview : '',
+          ],
         ],
       ];
       $post = new ApplenewsDatabase();
       $post->setPostId($entity_type, $entity_wrapper->getIdentifier(), $entity_wrapper->getIdentifier());
       $post->update($record);
-      return TRUE;
     }
-    else {
-      watchdog('applenews', "Could not update Apple News article @id (entity ID: @eid). You could try delete the article from Apple News and re-publish it.",
-        [
-          '@id'   => $article->article_id,
-          '@eid' => $entity_wrapper->getIdentifier(),
-        ],
-        WATCHDOG_NOTICE
-      );
+    elseif (!empty($response->errors)) {
+      throw new ApplenewsAPIError($response, $entity_type, $entity_wrapper->getIdentifier());
     }
   }
   else {
     // Create new Apple News article.
-    return applenews_post($channel_id, $entity_type, $entity_wrapper, $data);
+    applenews_post($channel_id, $entity_type, $entity_wrapper, $data);
   }
-  return FALSE;
 }
 
 /**
@@ -852,8 +826,7 @@ function applenews_update($channel_id, $entity_type, EntityDrupalWrapper $entity
  * @param \EntityDrupalWrapper $entity_wrapper
  *   Entity metadata wrapper for the entity to post.
  *
- * @return bool
- *   Success.
+ * @throws ApplenewsAPIError
  */
 function applenews_delete($channel_id, $entity_type, EntityDrupalWrapper $entity_wrapper) {
   module_load_include('inc', 'applenews', 'applenews.publisher_api');
@@ -869,20 +842,21 @@ function applenews_delete($channel_id, $entity_type, EntityDrupalWrapper $entity
   // Make DELETE request to Apple News via PublisherAPI.
   $response = applenews_delete_article($article_id);
   // If successful request.
-  if (empty($response)) {
+  if (empty($response->errors)) {
     // Invoke Apple News delete hooks.
     module_invoke_all('applenews_delete', $article_id, $channel_id, $entity_wrapper, $entity_type);
     $post = new ApplenewsDatabase();
     $post->setPostId($entity_type, $entity_wrapper->getIdentifier(), $entity_wrapper->getIdentifier());
     $post->delete();
-    // $post->deleteByEntity($entity_wrapper, $entity_type);
-    watchdog('applenews', "Entity ID @id was removed from Apple News",
-      ['@id' => $entity_wrapper->getIdentifier()],
+    watchdog('applenews', "Entity ID @id was removed from Apple News", [
+        '@id' => $entity_wrapper->getIdentifier()
+      ],
       WATCHDOG_INFO
     );
-    return TRUE;
   }
-  return FALSE;
+  else {
+    throw new ApplenewsAPIError($response, $entity_type, $entity_wrapper->getIdentifier());
+  }
 }
 
 /**
@@ -901,16 +875,8 @@ function applenews_delete($channel_id, $entity_type, EntityDrupalWrapper $entity
  * @param array $metadata
  *   Metadata to send along in the request if any. Overrides the default
  *   metadata configured for the export.
- *
- * @return bool
- *   TRUE on success, FALSE on failure.
- *
- * @throws ApplenewsInvalidExport
- *   Generating the export for insert and update $op's may generate a
- *   ApplenewsInvalidExport exception.
  */
 function applenews_op($operation, $channel_id, $entity, $entity_type, ApplenewsExport $export = NULL, $metadata = []) {
-  $result = FALSE;
   /** @var EntityDrupalWrapper $entity_wrapper */
   $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
 
@@ -925,23 +891,19 @@ function applenews_op($operation, $channel_id, $entity, $entity_type, ApplenewsE
   }
 
   switch ($operation) {
-
     case 'insert':
       // Create new article in Apple News.
-      $result = applenews_post($channel_id, $entity_type, $entity_wrapper, $data);
+      applenews_post($channel_id, $entity_type, $entity_wrapper, $data);
       break;
-
     case 'update':
       // Update existing Apple News article.
-      $result = applenews_update($channel_id, $entity_type, $entity_wrapper, $data);
+      applenews_update($channel_id, $entity_type, $entity_wrapper, $data);
       break;
-
     case 'delete':
       // Delete article from Apple News.
-      $result = applenews_delete($channel_id, $entity_type, $entity_wrapper);
+      applenews_delete($channel_id, $entity_type, $entity_wrapper);
       break;
   }
-  return $result;
 }
 
 /**

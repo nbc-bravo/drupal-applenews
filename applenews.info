@@ -18,6 +18,7 @@ files[] = include/destination_metadata.inc
 files[] = include/export.inc
 files[] = include/source.inc
 files[] = include/preview.inc
+files[] = include/api.inc
 files[] = tests/applenews.test
 
 dependencies[] = entity
