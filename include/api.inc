@@ -41,10 +41,10 @@ class ApplenewsAPIError extends Exception {
       );
       $message = trim(preg_replace('~\s+~', ' ', $message));
       // Prefix with entity information if available.
-      if (!empty($entity_type) && !empty($entity_id) && ($entities = entity_load($entity_type, $entity_id))) {
+      if (!empty($entity_type) && !empty($entity_id) && ($entities = entity_load($entity_type, [$entity_id]))) {
         $entity = reset($entities);
         $label = entity_label($entity_type, $entity);
-        $prefix = sprintf('Error encountered when contacting the Apple News API for %s (%s): ', $label, $entity_id);
+        $prefix = sprintf('Error encountered when contacting the Apple News API for "%s" (%s): ', $label, $entity_id);
       }
       else {
         $prefix = 'Error encountered when contacting the Apple News API: ';
