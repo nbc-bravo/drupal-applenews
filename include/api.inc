@@ -39,7 +39,7 @@ class ApplenewsAPIError extends Exception {
         !empty($error->keyPath) ? $error->keyPath : '',
         !empty($error->message) ? $error->message : (!empty($error->value) ? $error->value : '')
       );
-      $message = preg_replace('~\s+~', ' ', $message);
+      $message = trim(preg_replace('~\s+~', ' ', $message));
       // Prefix with entity information if available.
       if (!empty($entity_type) && !empty($entity_id)) {
         $prefix = 'Apple News API Error concerning ' . $entity_type . ' ' . $entity_id . ': ';
