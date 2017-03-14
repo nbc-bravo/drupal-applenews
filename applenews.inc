@@ -718,7 +718,6 @@ function applenews_post($channel_id, $entity_type, EntityDrupalWrapper $entity_w
   elseif (!empty($response->errors)) {
     throw new ApplenewsAPIError($response, $entity_type, $entity_wrapper->getIdentifier());
   }
-  return FALSE;
 }
 
 /**
@@ -848,11 +847,7 @@ function applenews_delete($channel_id, $entity_type, EntityDrupalWrapper $entity
     $post = new ApplenewsDatabase();
     $post->setPostId($entity_type, $entity_wrapper->getIdentifier(), $entity_wrapper->getIdentifier());
     $post->delete();
-    watchdog('applenews', "Entity ID @id was removed from Apple News", [
-        '@id' => $entity_wrapper->getIdentifier()
-      ],
-      WATCHDOG_INFO
-    );
+    watchdog('applenews', "Entity ID @id was removed from Apple News", ['@id' => $entity_wrapper->getIdentifier()], WATCHDOG_INFO);
   }
   else {
     throw new ApplenewsAPIError($response, $entity_type, $entity_wrapper->getIdentifier());
