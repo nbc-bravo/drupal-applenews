@@ -1,0 +1,6 @@
+applenews.export:
+  title: 'Apple News Preview'
+  route_name: applenews.preview
+  base_route: entity.node.canonical
+  weight: 100
+

@@ -1,0 +1,51 @@
+entity.applenews_template.collection:
+  path: '/admin/config/services/applenews'
+  defaults:
+    _entity_list: 'applenews_template'
+    _title: 'Apple News Templates'
+  requirements:
+    _permission: 'administer applenews templates'
+
+entity.applenews_template.add_form:
+  path: '/admin/config/services/applenews/add'
+  defaults:
+    _entity_form: 'applenews_template.add'
+    _title: 'Add Apple News template'
+  requirements:
+    _permission: 'administer applenews templates'
+
+entity.applenews_template.edit_form:
+  path: '/admin/config/services/applenews/{applenews_template}'
+  defaults:
+    _entity_form: 'applenews_template.edit'
+    _title: 'Edit Apple News template'
+  requirements:
+    _permission: 'administer applenews templates'
+
+entity.applenews_template.delete_form:
+  path: '/admin/config/services/applenews/{applenews_template}/delete'
+  defaults:
+    _entity_form: 'applenews_template.delete'
+    _title: 'Delete Apple News template'
+  requirements:
+    _permission: 'administer applenews templates'
+
+applenews.preview:
+  path: '/node/{node}/applenews-preview'
+  defaults:
+    _form: '\Drupal\applenews\Form\ApplenewsPreviewForm'
+    _title: 'Preview Apple News Export'
+  requirements:
+    _permission: 'preview applenews content'
+  options:
+    parameters:
+      node:
+        type: 'entity:node'
+
+applenews.preview_download:
+  path: '/node/{node}/applenews-preview/{template_id}'
+  defaults:
+    _controller: '\Drupal\applenews\Controller\ApplenewsPreviewController::preview'
+    _title: 'Download Apple News Preview'
+  requirements:
+    _permission: 'preview applenews content'
