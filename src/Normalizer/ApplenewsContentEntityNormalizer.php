@@ -2,7 +2,7 @@
 
 namespace Drupal\applenews\Normalizer;
 
-use Document\Layouts\Layout;
+use ChapterThree\AppleNewsAPI\Document\Layouts\Layout;
 use ChapterThree\AppleNewsAPI\Document;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
