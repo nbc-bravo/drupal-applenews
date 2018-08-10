@@ -28,6 +28,7 @@ class Applenews extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $field_name = $items->getName();
     $default_channels = unserialize($items[$delta]->channels);
+    /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     $entity = $items->getEntity();
     $element['#attached']['library'][] = 'applenews/drupal.applenews.admin';
     $templates = $this->getTemplates($entity);
@@ -140,13 +141,17 @@ class Applenews extends WidgetBase {
         ],
       ];
       if ($article) {
-        $url_preview = Url::fromRoute('applenews.preview', ['node' => $entity->id()])->toString();
+        $url_preview = Url::fromRoute('applenews.preview', [
+          'entity_type' => $entity->getEntityTypeId(),
+          'entity' => $entity->id(),
+          'revision_id' => $entity->getLoadedRevisionId(),
+        ]);
         $element['preview'] = [
           '#type' => 'item',
           '#title' => $this->t('Preview'),
 
           // @todo: Fix route, to support other than node.
-          '#markup' => $this->t('<a href=":url">Download</a> the Apple News generated document (use the News Preview app to preview the article).', [':url' => $url_preview]),
+          '#markup' => $this->t('<a href=":url">Download</a> the Apple News generated document (use the News Preview app to preview the article).', [':url' => $url_preview->toString()]),
         ];
 
       }

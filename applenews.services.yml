@@ -43,3 +43,6 @@ services:
   applenews.publisher:
     class: Drupal\applenews\Publisher
     arguments: ['@config.factory']
+  applenews.preview_builder:
+    class: Drupal\applenews\ApplenewsPreviewBuilder
+    arguments: ['@config.factory', '@file_system']

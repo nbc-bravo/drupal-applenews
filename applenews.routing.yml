@@ -99,24 +99,36 @@ entity.applenews_text_style.delete_form:
 
 # Entity.
 applenews.preview:
-  path: '/node/{node}/applenews-preview'
+  path: '/admin/config/services/applenews/{entity_type}/{entity}/{revision_id}/download'
   defaults:
-    _form: '\Drupal\applenews\Form\ApplenewsPreviewForm'
-    _title: 'Preview Apple News Export'
+    _title: 'Download article for Apple News preview'
+    _controller: '\Drupal\applenews\Controller\ApplenewsPreviewController::preview'
   requirements:
     _permission: 'preview applenews content'
   options:
     parameters:
-      node:
-        type: 'entity:node'
+      entity:
+        type: entity:{entity_type}
 
-applenews.preview_download:
-  path: '/node/{node}/applenews-preview/{template_id}'
-  defaults:
-    _controller: '\Drupal\applenews\Controller\ApplenewsPreviewController::preview'
-    _title: 'Download Apple News Preview'
-  requirements:
-    _permission: 'preview applenews content'
+#applenews.preview:
+#  path: '/node/{node}/applenews-preview'
+#  defaults:
+#    _form: '\Drupal\applenews\Form\ApplenewsPreviewForm'
+#    _title: 'Preview Apple News Export'
+#  requirements:
+#    _permission: 'preview applenews content'
+#  options:
+#    parameters:
+#      node:
+#        type: 'entity:node'
+
+#applenews.preview_download:
+#  path: '/node/{node}/applenews-preview/{template_id}'
+#  defaults:
+#    _controller: '\Drupal\applenews\Controller\ApplenewsPreviewController::preview'
+#    _title: 'Download Apple News Preview'
+#  requirements:
+#    _permission: 'preview applenews content'
 
 applenews.remote.article_delete:
   path: '/admin/config/services/applenews/remote/{channel_id}/{article_id}/delete'
