@@ -98,7 +98,7 @@ entity.applenews_text_style.delete_form:
     _permission: 'administer applenews text styles'
 
 # Entity.
-applenews.preview:
+applenews.preview_download:
   path: '/admin/config/services/applenews/{entity_type}/{entity}/{revision_id}/{template_id}/download'
   defaults:
     _title: 'Download article for Apple News preview'

@@ -142,7 +142,7 @@ class Applenews extends WidgetBase {
         ],
       ];
       if ($article) {
-        $url_preview = Url::fromRoute('applenews.preview', [
+        $url_preview = Url::fromRoute('applenews.preview_download', [
           'entity_type' => $entity->getEntityTypeId(),
           'entity' => $entity->id(),
           'revision_id' => $entity->getLoadedRevisionId(),
