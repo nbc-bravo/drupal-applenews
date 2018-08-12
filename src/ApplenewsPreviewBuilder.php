@@ -6,7 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\File\FileSystem;
 
 /**
- * Class ApplenewsPreviewBuilder
+ * Class ApplenewsPreviewBuilder.
  *
  * This class generate downloadable Apple News Native formatted documents with
  * assets.
@@ -20,14 +20,14 @@ class ApplenewsPreviewBuilder {
    *
    * @var string
    */
-  private $entity_dir;
+  private $entityDirectory;
 
   /**
    * Real path to individual entity export directory.
    *
    * @var string
    */
-  private $entity_realpath;
+  private $entityRealPath;
 
   /**
    * Apple News article assets.
@@ -41,42 +41,42 @@ class ApplenewsPreviewBuilder {
    *
    * @var int|string
    */
-  private $article_json;
+  private $articleJson;
 
   /**
    * Real path to the batch preview export archive file.
    *
    * @var string
    */
-  private $archive_file;
+  private $archiveFile;
 
   /**
    * URL to the archive file.
    *
    * @var int|string
    */
-  private $archive_url;
+  private $archiveUrl;
 
   /**
    * Real path to the batch preview directory.
    *
    * @var string
    */
-  private $archive_realpath;
+  private $archiveRealPath;
 
   /**
    * Entity ID of the current preview object.
    *
    * @var int
    */
-  private $entity_id;
+  private $entityId;
 
   /**
    * Indicates whether this is an individual entity export or not.
    *
-   * @var boolean
+   * @var bool
    */
-  private $entity_archive;
+  private $entityArchive;
 
   /**
    * URI to the main Apple News export directory.
@@ -92,81 +92,174 @@ class ApplenewsPreviewBuilder {
    */
   private $archive = '';
 
+  /**
+   * Config object.
+   *
+   * @var \Drupal\Core\Config\ImmutableConfig
+   */
   protected $config;
 
+  /**
+   * File system.
+   *
+   * @var \Drupal\Core\File\FileSystem
+   */
   protected $fileSystem;
 
+  /**
+   * ApplenewsPreviewBuilder constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   Config factory.
+   * @param \Drupal\Core\File\FileSystem $file_system
+   *   File system.
+   */
   public function __construct(ConfigFactoryInterface $config_factory, FileSystem $file_system) {
     $this->config = $config_factory->get('applenews.settings');
     $this->fileSystem = $file_system;
   }
 
   /**
-   * Implements __construct().
-   * Initialize all required variables.
+   * Sets an entity.
+   *
+   * @param int $entity_id
+   *   Integer entity ID.
+   * @param string $filename
+   *   String file name.
+   * @param bool $entity_archive
+   *   Flag to specify if archive.
+   * @param array $data
+   *   An array of article data.
+   *
+   * @return $this
    */
   public function setEntity($entity_id, $filename, $entity_archive = FALSE, array $data = []) {
-    /** @var FileSystem $filesystem */
+    /** @var \Drupal\Core\File\FileSystem $filesystem */
     $filesystem = $this->fileSystem;
     $this->directory = 'applenews_preview/';
     $this->archive = !empty($filename) ? 'applenews-' . $filename . '.zip' : 'applenews.zip';
-    $this->archive_realpath = $filesystem->realpath(file_build_uri($this->directory));
-    $this->archive_file = $filesystem->realpath(file_build_uri($this->directory . $this->archive));
-    $this->archive_url = file_create_url(file_build_uri($this->directory . $this->archive));
+    $this->archiveRealPath = $filesystem->realpath($this->fileBuildUri($this->directory));
+    $this->archiveFile = $filesystem->realpath($this->fileBuildUri($this->directory . $this->archive));
+    $this->archiveUrl = file_create_url($this->fileBuildUri($this->directory . $this->archive));
 
     if ($entity_id) {
-      $drupal_entity_dir = file_build_uri($this->directory . $entity_id);
-      $this->entity_dir = $drupal_entity_dir;
-      $this->entity_realpath = $filesystem->realpath($drupal_entity_dir);
-      // Boolean value that indicated if we should create tmp archive file for an entity.
-      $this->entity_archive = $entity_archive;
-      $this->entity_id = $entity_id;
+      $drupal_entity_directory = $this->fileBuildUri($this->directory . $entity_id);
+      $this->entityDirectory = $drupal_entity_directory;
+      $this->entityRealPath = $filesystem->realpath($drupal_entity_directory);
+      // Boolean value that indicated if we should create tmp archive file
+      // for an entity.
+      $this->entityArchive = $entity_archive;
+      $this->entityId = $entity_id;
       if (count($data)) {
         $this->files = $data['files'];
-        $this->article_json = $data['json'];
+        $this->articleJson = $data['json'];
       }
       if ($entity_archive) {
-        $this->removeDirectories([$this->entity_id]);
+        $this->removeDirectories([$this->entityId]);
       }
-      file_prepare_directory($drupal_entity_dir, FILE_CREATE_DIRECTORY);
+      file_prepare_directory($drupal_entity_directory, FILE_CREATE_DIRECTORY);
     }
     return $this;
 
   }
 
   /**
-   * Save JSON string into article.json file.
+   * Removes directories.
+   *
+   * @param array $entity_ids
+   *   An array of entity IDs.
    */
-  private function saveArticleJSON() {
-    file_unmanaged_save_data($this->article_json, $this->entity_dir . '/article.json');
-  }
-
-  /**
-   * Save article assets into article directory.
-   */
-  private function saveArticleAssets() {
-    foreach ($this->files as $url => $path) {
-      $contents = file_get_contents($path);
-      file_unmanaged_save_data($contents, $this->entity_dir . '/' . basename($url));
+  public function removeDirectories(array $entity_ids = []) {
+    if (is_dir($this->archiveRealPath)) {
+      foreach ($this->scanDirectory($this->archiveRealPath) as $file) {
+        $dir = $this->archiveRealPath . '/' . $file;
+        if (is_dir($dir) && in_array($file, $entity_ids)) {
+          file_unmanaged_delete_recursive($dir);
+        }
+      }
     }
   }
 
   /**
-   * Scan a directory and return a list of file names and directories.
+   * Delete individual entity archive.
+   *
+   * @param int $entity_id
+   *   Entity ID.
    */
-  private function scanDirectory($path) {
-    $items = array_values(array_filter(scandir($path), function($file) {
-      return !is_dir($file);
-    }));
-    return $items;
+  public function entityArchiveDelete($entity_id) {
+    $archiveFile = $this->archiveRealPath . '/' . $entity_id . '.zip';
+    file_unmanaged_delete_recursive($archiveFile);
+  }
+
+  /**
+   * Returns URL path to an archive file.
+   *
+   * @return int|string
+   *   String URL.
+   */
+  public function getArchiveFilePath() {
+    return $this->archiveUrl;
+  }
+
+  /**
+   * Get path to the individual entity archive.
+   *
+   * @param int $entity_id
+   *   Entity ID.
+   *
+   * @return string
+   *   String archive path.
+   */
+  public function getEntityArchivePath($entity_id) {
+    return $this->archiveRealPath . '/' . $entity_id;
+  }
+
+  /**
+   * Export entities to files.
+   */
+  public function toFile() {
+    $this->saveArticleJson();
+    $this->saveArticleAssets();
+  }
+
+  /**
+   * Generate downloadable zip file.
+   *
+   * @param array $entity_ids
+   *   An array of entity IDs.
+   *
+   * @throws \Exception
+   */
+  public function archive(array $entity_ids = []) {
+    $this->createArchive($entity_ids);
+  }
+
+  /**
+   * Helper to build file URI.
+   *
+   * @param string $path
+   *   String path.
+   *
+   * @return string
+   *   String full path after normalized.
+   */
+  protected function fileBuildUri($path) {
+    $uri = 'temporary://' . $path;
+    return file_stream_wrapper_uri_normalize($uri);
   }
 
   /**
    * Convert \ZipArchive::open() error code to message.
    *
+   * @param int $error_code
+   *   Integer error code.
+   *
    * @see http://php.net/manual/en/ziparchive.open.php
+   *
+   * @return string
+   *   String error message.
    */
-  public static function zipErrorMsg($error_code) {
+  protected function zipErrorMsg($error_code) {
     switch ($error_code) {
 
       case \ZipArchive::ER_EXISTS:
@@ -201,9 +294,47 @@ class ApplenewsPreviewBuilder {
   }
 
   /**
-   * Create [article-id].zip file archive.
+   * Save JSON string into article.json file.
    */
-  private function createArchive($entity_ids = []) {
+  private function saveArticleJson() {
+    file_unmanaged_save_data($this->articleJson, $this->entityDirectory . '/article.json');
+  }
+
+  /**
+   * Save article assets into article directory.
+   */
+  private function saveArticleAssets() {
+    foreach ($this->files as $url => $path) {
+      $contents = file_get_contents($path);
+      file_unmanaged_save_data($contents, $this->entityDirectory . '/' . basename($url));
+    }
+  }
+
+  /**
+   * Scan a directory and return a list of file names and directories.
+   *
+   * @param string $path
+   *   String path.
+   *
+   * @return array
+   *   An array of files.
+   */
+  private function scanDirectory($path) {
+    $items = array_values(array_filter(scandir($path), function ($file) {
+      return !is_dir($file);
+    }));
+    return $items;
+  }
+
+  /**
+   * Create [article-id].zip file archive.
+   *
+   * @param array $entity_ids
+   *   An array of entity IDs.
+   *
+   * @throws \Exception
+   */
+  private function createArchive(array $entity_ids = []) {
 
     // Start creating a new archive file.
     if (!class_exists('\ZipArchive')) {
@@ -211,10 +342,10 @@ class ApplenewsPreviewBuilder {
     }
     $zip = new \ZipArchive();
 
-    if ($this->entity_archive) {
+    if ($this->entityArchive) {
 
-      $entity_archive_realpath = $this->archive_realpath . '/' . $this->entity_id;
-      $entity_archive = $entity_archive_realpath . '.zip';
+      $entity_archiveRealPath = $this->archiveRealPath . '/' . $this->entityId;
+      $entity_archive = $entity_archiveRealPath . '.zip';
 
       // Make sure to remove archive file first.
       if (file_exists($entity_archive)) {
@@ -222,94 +353,40 @@ class ApplenewsPreviewBuilder {
       }
 
       // Open archive.
-      $result = $zip->open($entity_archive, \ZipArchive::OVERWRITE);
+      $result = $zip->open($entity_archive, \ZipArchive::CREATE);
       if ($result !== TRUE) {
-        throw new \Exception('Could not open archive file: ' .
-          $this::zipErrorMsg($result));
+        throw new \Exception('Could not open archive file: ' . $this->zipErrorMsg($result));
       }
       // Create an archive of an article assets and content.
-      foreach ($this->scanDirectory($entity_archive_realpath) as $item) {
-        $zip->addFile($entity_archive_realpath . '/' . $item, $this->entity_id . '/' . $item);
+      foreach ($this->scanDirectory($entity_archiveRealPath) as $item) {
+        $zip->addFile($entity_archiveRealPath . '/' . $item, $this->entityId . '/' . $item);
       }
 
     }
     else {
 
       // Open archive.
-      $result = $zip->open($this->archive_file, \ZipArchive::OVERWRITE);
+      $result = $zip->open($this->archiveFile, \ZipArchive::OVERWRITE);
       if ($result !== TRUE) {
-        throw new \Exception('Could not open archive file: ' .
-          $this::zipErrorMsg($result));
+        throw new \Exception('Could not open archive file: ' . $this->zipErrorMsg($result));
       }
 
       // Scan through all entity directories and add each file to an archive.
-      foreach ($this->scanDirectory($this->archive_realpath) as $item) {
-        $dir = $this->archive_realpath . '/' . $item;
+      foreach ($this->scanDirectory($this->archiveRealPath) as $item) {
+        $dir = $this->archiveRealPath . '/' . $item;
         if (is_dir($dir) && in_array($item, $entity_ids)) {
           $zip->addEmptyDir($item);
-          $files = $this->scanDirectory($this->archive_realpath . '/' . $item);
+          $files = $this->scanDirectory($this->archiveRealPath . '/' . $item);
           foreach ($files as $file) {
-            $zip->addFile($this->archive_realpath . '/' . $item . '/' . $file, $item . '/' . $file);
+            $zip->addFile($this->archiveRealPath . '/' . $item . '/' . $file, $item . '/' . $file);
           }
         }
       }
-
     }
 
     // Close and save archive.
     $zip->close();
 
-  }
-
-  /**
-   * Removes directories.
-   */
-  public function removeDirectories($entity_ids = []) {
-    if (is_dir($this->archive_realpath)) {
-      foreach ($this->scanDirectory($this->archive_realpath) as $file) {
-        $dir = $this->archive_realpath . '/' . $file;
-        if (is_dir($dir) && in_array($file, $entity_ids)) {
-          file_unmanaged_delete_recursive($dir);
-        }
-      }
-    }
-  }
-
-  /**
-   * Delete individual entity archive.
-   */
-  public function entityArchiveDelete($entity_id) {
-    $archive_file = $this->archive_realpath . '/' . $entity_id . '.zip';
-    file_unmanaged_delete_recursive($archive_file);
-  }
-
-  /**
-   * Returns URL path to an archive file.
-   */
-  public function getArchiveFilePath() {
-    return $this->archive_url;
-  }
-
-  /**
-   * Get path to the individula entity archive.
-   */
-  public function getEntityArchivePath($entity_id) {
-    return $this->archive_realpath . '/' . $entity_id;
-  }
-
-  /**
-   * Export entities to files.
-   */
-  public function toFile() {
-    $this->saveArticleJSON();
-    $this->saveArticleAssets();
-  }
-
-  /**
-   * Generate downloadable zip file.
-   */
-  public function archive($entity_ids = []) {
-    $this->createArchive($entity_ids);
   }
 
 }

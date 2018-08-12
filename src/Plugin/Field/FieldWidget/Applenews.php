@@ -146,6 +146,7 @@ class Applenews extends WidgetBase {
           'entity_type' => $entity->getEntityTypeId(),
           'entity' => $entity->id(),
           'revision_id' => $entity->getLoadedRevisionId(),
+          'template_id' => $items->template,
         ]);
         $element['preview'] = [
           '#type' => 'item',

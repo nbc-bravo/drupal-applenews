@@ -30,9 +30,6 @@ services:
     class: Drupal\applenews\Normalizer\ApplenewsFieldItemNormalizer
     tags:
       - { name: normalizer, priority: 10 }
-  applenews.template_selection:
-    class: Drupal\applenews\ApplenewsTemplateSelection
-    arguments: ['@entity_type.manager']
   logger.channel.applenews:
     class: Drupal\Core\Logger\LoggerChannel
     factory: logger.factory:get

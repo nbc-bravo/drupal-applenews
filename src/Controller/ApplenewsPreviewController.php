@@ -5,6 +5,7 @@ namespace Drupal\applenews\Controller;
 use Drupal\applenews\ApplenewsPreviewBuilder;
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -18,16 +19,22 @@ use Symfony\Component\Serializer\Serializer;
 class ApplenewsPreviewController extends ControllerBase {
 
   /**
+   * Logger.
+   *
    * @var \Psr\Log\LoggerInterface
    */
   protected $logger;
 
   /**
+   * Serializer.
+   *
    * @var \Symfony\Component\Serializer\Serializer
    */
   protected $serializer;
 
   /**
+   * Preview builder.
+   *
    * @var \Drupal\applenews\ApplenewsPreviewBuilder
    */
   protected $previewBuilder;
@@ -35,8 +42,12 @@ class ApplenewsPreviewController extends ControllerBase {
   /**
    * ApplenewsPreviewController constructor.
    *
+   * @param \Psr\Log\LoggerInterface $logger
+   *   Logger object.
    * @param \Symfony\Component\Serializer\Serializer $serializer
+   *   Serializer object.
    * @param \Drupal\applenews\ApplenewsPreviewBuilder $preview_builder
+   *   Preview builder object.
    */
   public function __construct(LoggerInterface $logger, Serializer $serializer, ApplenewsPreviewBuilder $preview_builder) {
     $this->logger = $logger;
@@ -56,56 +67,79 @@ class ApplenewsPreviewController extends ControllerBase {
   }
 
   /**
-   * Generates article.json and assets for preview.
+   * Generate preview ZIP file to download.
    *
-   * @param \Drupal\node\NodeInterface $node
-   *   Node object.
+   * @param string $entity_type
+   *   String entity type.
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity object.
+   * @param int $revision_id
+   *   revision ID.
    * @param string $template_id
    *   String template ID.
-   * @param $revision_id
-   *   Revision ID.
    *
-   * @return array
-   *   An array of preview element.
+   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+   *   Response object.
    */
-  public function preview($entity_type, $entity, $revision_id) {
-    $context['template_id'] = 'article';
-    $directory = 'public://applenews_preview';
-    // $filename = 'applenews-node-' . $entity->id() . '-' . $context['template_id'] . '.json';
+  public function preview($entity_type, EntityInterface $entity, $revision_id, $template_id) {
+    $context['template_id'] = $template_id;
     $filename = NULL;
     $entity_archive = TRUE;
     $entity_id = $entity->id();
     $entity_ids = [$entity_id];
 
-    /** @var \ChapterThree\AppleNewsAPI\Document $document */
-    $document = $this->serializer->normalize($entity, 'applenews', $context);
-
-    $this->exportToFile($entity_id, $entity_ids, $filename, $entity_archive, $document);
+    $data = $this->getDataArray($entity, $context);
+    $this->exportToFile($entity_id, $entity_ids, $filename, $entity_archive, $data);
     $archive_path = $this->exportFilePath($entity_id);
     $archive = $archive_path . '.zip';
-    $output = file_get_contents($archive, FILE_USE_INCLUDE_PATH);
 
-    $this->previewBuilder->entityArchiveDelete($entity_id);
-    $this->previewBuilder->removeDirectories($entity_ids);
+    $headers = ['Content-Type' => 'application/zip'];
+    $filename = implode('-', ['applenews-preview', $entity_type, $entity_id]) . '.zip';
+    $response = new BinaryFileResponse($archive, 200, $headers, FALSE);
+    $response->setContentDisposition('attachment', $filename);
 
-    $headers = [
-      'Content-Type' => 'application/zip',
-      'Content-Disposition' => 'attachment; filename=' . $entity_id . '.zip',
-    ];
-    print $output;exit;
-    // return new BinaryFileResponse($archive, 200, $headers, FALSE);
+    return $response;
   }
 
   /**
-   * @param $entity_id
-   * @param $entity_ids
-   * @param $filename
-   * @param $entity_archive
-   * @param $data
+   * Provides article data array.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity article attached to.
+   * @param array $context
+   *   An array of context.
+   *
+   * @return array
+   *   An array of article data.
+   */
+  protected function getDataArray(EntityInterface $entity, array $context) {
+    /** @var \ChapterThree\AppleNewsAPI\Document $document */
+    $document = $this->serializer->normalize($entity, 'applenews', $context);
+
+    return [
+      'json' => Json::encode($document),
+      'files' => [],
+    ];
+  }
+
+  /**
+   * Export article to file.
+   *
+   * @param int $entity_id
+   *   Entity ID.
+   * @param array $entity_ids
+   *   An array of entity IDs.
+   * @param string $filename
+   *   String filename.
+   * @param string $entity_archive
+   *   String path.
+   * @param array $data
+   *   An array of article dta.
    *
    * @return int|null|string
+   *   NULL if successful. URL for group of entities.
    */
-  protected function exportToFile($entity_id, $entity_ids, $filename, $entity_archive, $data) {
+  protected function exportToFile($entity_id, array $entity_ids, $filename, $entity_archive, array $data) {
     $preview = $this->previewBuilder->setEntity($entity_id, $filename, $entity_archive, $data);
 
     if (!empty($entity_id)) {
@@ -131,41 +165,17 @@ class ApplenewsPreviewController extends ControllerBase {
     }
   }
 
+  /**
+   * Provides archive URL.
+   *
+   * @param int $entity_id
+   *   Entity ID.
+   *
+   * @return string
+   *   String URL
+   */
   protected function exportFilePath($entity_id) {
     return $this->previewBuilder->getEntityArchivePath($entity_id);
   }
 
 }
-
-/*
-         if ($export = applenews_entity_get_export($entity_type, $entity_id)) {
-          $data = applenews_entity_export($export, $entity_type, $entity_id);
-          applenews_export_to_file($entity_id, [$entity_id], NULL, TRUE, $data);
-          $archive_path = applenews_export_file_path($entity_id);
-
-          $archive = $archive_path . '.zip';
-          $output = file_get_contents($archive, FILE_USE_INCLUDE_PATH);
-
-          // Remove individual entity archive.
-          applenews_export_file_delete($entity_id);
-          // Remove individual entity directory.
-          applenews_export_dir_cleanup([$entity_id]);
-
-          drupal_add_http_header('Content-Type', 'application/zip');
-          drupal_add_http_header('Content-Disposition', 'attachment; filename=' . $entity_id . '.zip');
-
-          echo $output;
-
-        }
-        else {
-          return t('Export not defined for this entity.');
-        }
-      }
-      else {
-        return t('Entity not found.');
-      }
-
-      drupal_exit();
-      return NULL;
-
- */
