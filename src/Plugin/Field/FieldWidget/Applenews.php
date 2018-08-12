@@ -4,6 +4,7 @@ namespace Drupal\applenews\Plugin\Field\FieldWidget;
 
 use Drupal\applenews\ApplenewsManager;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -128,7 +129,7 @@ class Applenews extends WidgetBase {
         }
       }
       $element['is_preview'] = [
-        '#title' => '<strong>' . $this->t('Content visibility') . '</strong>: ' . t('Exported articles will be visible to members of my channel only.'),
+        '#title' => $this->t('<strong>Content visibility</strong>: Exported articles will be visible to members of my channel only.'),
         '#type' => 'checkbox',
         '#default_value' => $items->is_preview,
         '#description' => $this->t('Indicates whether this article should be public (live) or should be a preview that is only visible to members of your channel. Uncheck this to publish the article right away and make it visible to all News users. <br/><strong>Note:</strong>  If your channel has not yet been approved to publish articles in Apple News Format, unchecking this option will result in an error.'),
@@ -208,12 +209,13 @@ class Applenews extends WidgetBase {
   /**
    * Generate template options.
    *
-   * @param $entity
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   An entity.
    *
    * @return array
    *   An array of templates indexed by id.
    */
-  protected function getTemplates($entity) {
+  protected function getTemplates(EntityInterface $entity) {
     $templates = [];
 
     try {
@@ -266,6 +268,7 @@ class Applenews extends WidgetBase {
    * Logger.
    *
    * @return \Psr\Log\LoggerInterface
+   *   Logger object.
    */
   protected function logger() {
     return \Drupal::logger('applenews');

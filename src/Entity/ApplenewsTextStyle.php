@@ -52,82 +52,115 @@ class ApplenewsTextStyle extends ConfigEntityBase implements ApplenewsTextStyleI
   protected $label;
 
   /**
-   * @var
+   * Font name.
+   *
+   * @var string
    */
   protected $fontName;
 
   /**
-   * @var
+   * Font size.
+   *
+   * @var int
    */
   protected $fontSize;
 
   /**
-   * @var
+   * Text color.
+   *
+   * @var string
    */
   protected $textColor;
 
   /**
-   * @var
+   * Text shadow.
+   *
+   * @var string
    */
   protected $textShadow;
 
   /**
-   * @var
+   * Text transform.
+   *
+   * @var string
    */
   protected $textTransform;
 
   /**
-   * @var
+   * Underline.
+   *
+   * @var string
    */
   protected $underline;
 
   /**
-   * @var
+   * Strikethrough.
+   *
+   * @var bool
    */
   protected $strikethrough;
 
   /**
-   * @var
+   * Stroke.
+   *
+   * @var string
    */
   protected $stroke;
 
   /**
-   * @var
+   * Background color.
+   *
+   * @var string
    */
   protected $backgroundColor;
 
   /**
-   * @var
+   * Vertical alignment.
+   *
+   * @var string
    */
   protected $verticalAlignment;
 
   /**
-   * @var
+   * Tracking.
+   *
+   * @var string
    */
   protected $tracking;
 
   /**
-   * @var
+   * Text alignment.
+   *
+   * @var string
    */
   protected $textAlignment;
 
   /**
-   * @var
+   * Line height.
+   *
+   * @var int
    */
   protected $lineHeight;
 
   /**
-   * @var
+   * Drop cap style object.
+   *
+   * @var object
+   *   Drop shadow object.
    */
   protected $dropCapStyle;
 
   /**
-   * @var
+   * String hyphenation.
+   *
+   * @var string
    */
   protected $hyphenation;
 
   /**
-   * @var
+   * String link style.
+   *
+   * @var string
    */
   protected $linkStyle;
 

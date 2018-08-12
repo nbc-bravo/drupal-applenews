@@ -30,8 +30,12 @@ interface ApplenewsTemplateInterface extends ConfigEntityInterface {
   public function getComponents();
 
   /**
+   * Add a new component.
+   *
    * @param array $component
-   *   An array representing a component config object. @see applenews.schema.yml.
+   *   An array representing a component config object.
+   *
+   * @see applenews.schema.yml
    */
   public function addComponent(array $component);
 
@@ -47,7 +51,9 @@ interface ApplenewsTemplateInterface extends ConfigEntityInterface {
    * Set the templates components.
    *
    * @param array $components
-   *   An array of component arrays, each matching the schema. @see applenews.schema.yml.
+   *   An array of component arrays, each matching the schema.
+   *
+   * @see applenews.schema.yml
    */
   public function setComponents(array $components);
 
@@ -55,6 +61,7 @@ interface ApplenewsTemplateInterface extends ConfigEntityInterface {
    * Get a specific component from the template.
    *
    * @param string $id
+   *   String component id.
    *
    * @return array|null
    *   The array representation of the component, as defined by the schema.

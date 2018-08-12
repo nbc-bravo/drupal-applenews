@@ -100,8 +100,10 @@ class ApplenewsManager {
    * and decide to publish on entity update.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity associated with AppleNews.
    *
    * @return bool
+   *   Response of post. TRUE if successful.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
@@ -153,14 +155,15 @@ class ApplenewsManager {
   /**
    * Fetches metadata.
    *
-   * @param $sections
+   * @param array $sections
    *   An array of section ids.
    * @param null|string $revision_id
    *   Revision ID for article update.
    *
    * @return string
+   *   JSON metadata string.
    */
-  protected function getMetadata($sections, $revision_id = NULL) {
+  protected function getMetadata(array $sections, $revision_id = NULL) {
     foreach ($sections as $section_id => $flag) {
       $section_urls[] = $this->config->get('endpoint') . '/sections/' . $section_id;
     }
@@ -176,8 +179,12 @@ class ApplenewsManager {
   }
 
   /**
+   * Retrieve article.
+   *
    * @param \Drupal\Core\Entity\EntityInterface $entity
-   * @param $field_name
+   *   Entity associated with AppleNews.
+   * @param string $field_name
+   *   String applenews field name.
    *
    * @return \Drupal\Core\Entity\EntityInterface|null
    *   Apple News Article entity if exist, NULL otherwise.
@@ -210,8 +217,10 @@ class ApplenewsManager {
    * Delete an article from given entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   Entity associated with AppleNews.
    *
-   * @return bool
+   * @return object
+   *   Response object.
    */
   public function delete(EntityInterface $entity) {
     $fields = $this->getFields($entity->getEntityTypeId());
@@ -229,9 +238,11 @@ class ApplenewsManager {
   /**
    * Delete an article.
    *
-   * @param $article_id
+   * @param string $article_id
+   *   String article UUID.
    *
-   * @return mixed
+   * @return object
+   *   Response object.
    */
   protected function doDelete($article_id) {
     return $this->publisher->deleteArticle($article_id);
@@ -240,24 +251,30 @@ class ApplenewsManager {
   /**
    * Update an article.
    *
-   * @param $article_id
-   * @param $data
+   * @param string $article_id
+   *   String article UUID.
+   * @param array $data
+   *   Data array.
    *
-   * @return mixed
+   * @return object
+   *   Response object.
    */
-  protected function doUpdate($article_id, $data) {
+  protected function doUpdate($article_id, array $data) {
     return $this->publisher->updateArticle($article_id, $data);
   }
 
   /**
    * Posts article.
    *
-   * @param $channel_id
-   * @param $data
+   * @param string $channel_id
+   *   String channel ID.
+   * @param array $data
+   *   JSON Data string.
    *
-   * @return mixed
+   * @return object
+   *   Response object.
    */
-  protected function doPost($channel_id, $data) {
+  protected function doPost($channel_id, array $data) {
     return $this->publisher->postArticle($channel_id, $data);
   }
 
@@ -265,9 +282,12 @@ class ApplenewsManager {
    * Generates document from entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
-   * @param $template
+   *   Entity associated with AppleNews.
+   * @param string $template
+   *   String template ID.
    *
    * @return string
+   *   JSON string document.
    */
   protected function getDocumentDataFromEntity(EntityInterface $entity, $template) {
     $context['template_id'] = $template;

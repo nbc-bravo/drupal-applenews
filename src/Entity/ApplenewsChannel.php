@@ -115,9 +115,13 @@ class ApplenewsChannel extends ContentEntityBase implements ChannelInterface {
   }
 
   /**
-   * @param $response
+   * Updates properties from reponse.
+   *
+   * @param object $response
+   *   Response object.
    *
    * @return $this
+   *   Current object.
    */
   public function updateFromResponse($response) {
     if (is_object($response) && isset($response->data)) {
@@ -138,16 +142,20 @@ class ApplenewsChannel extends ContentEntityBase implements ChannelInterface {
   }
 
   /**
-   * @param $response
+   * Updates section details.
+   *
+   * @param object $response
+   *   Response object.
    *
    * @return $this
+   *   Current object.
    */
   public function updateSections($response) {
     $sections = [];
     foreach ($response->data as $section) {
       $sections[$section->id] = $section->name;
       if ($section->isDefault) {
-        $sections[$section->id] .= ' ' . '(Default)';
+        $sections[$section->id] .= ' (Default)';
       }
     }
     if ($sections) {

@@ -18,9 +18,12 @@ class ApplenewsPreviewController extends ControllerBase {
    * Generates article.json and assets for preview.
    *
    * @param \Drupal\node\NodeInterface $node
-   * @param $template_id
+   *   Node object.
+   * @param string $template_id
+   *   String template ID.
    *
    * @return array
+   *   An array of preview element.
    */
   public function preview(NodeInterface $node, $template_id) {
     $uri = 'public://applenews_preview/';

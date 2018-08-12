@@ -10,6 +10,8 @@ namespace Drupal\applenews\Normalizer;
 class ApplenewsTextComponentNormalizer extends ApplenewsComponentNormalizerBase {
 
   /**
+   * Component type.
+   *
    * @var string
    */
   protected $componentType = 'text';

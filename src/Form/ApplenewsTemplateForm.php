@@ -18,16 +18,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ApplenewsTemplateForm extends EntityForm {
 
   /**
+   * Component type manager.
+   *
    * @var \Drupal\applenews\Plugin\ApplenewsComponentTypeManager
    */
   protected $applenewsComponentTypeManager;
 
   /**
+   * Entity manager.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManager
    */
   protected $entityTypeManager;
 
   /**
+   * Renderer.
+   *
    * @var \Drupal\Core\Render\RendererInterface
    */
   protected $renderer;
@@ -36,6 +42,11 @@ class ApplenewsTemplateForm extends EntityForm {
    * Constructs an ApplenewsTemplateForm object.
    *
    * @param \Drupal\applenews\Plugin\ApplenewsComponentTypeManager $component_type_manager
+   *   Component type manager.
+   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
+   *   Entity type manager.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer.
    */
   public function __construct(ApplenewsComponentTypeManager $component_type_manager, EntityTypeManager $entity_type_manager, RendererInterface $renderer) {
     $this->applenewsComponentTypeManager = $component_type_manager;
@@ -283,7 +294,7 @@ class ApplenewsTemplateForm extends EntityForm {
   }
 
   /**
-   * Get all the available Applenews component plugins to use in a select element.
+   * Get all the available Applenews component plugins.
    *
    * @return array
    *   An array of component options suitable for a select element.
@@ -297,8 +308,14 @@ class ApplenewsTemplateForm extends EntityForm {
   }
 
   /**
-   * Ajax submit handler when someone clicks "Add new component". Stores the
-   * selected component type for later use.
+   * Ajax submit handler when someone clicks "Add new component".
+   *
+   * Stores the selected component type for later use.
+   *
+   * @param array $form
+   *   An array of from definition.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state array.
    */
   public function setComponentFormStep(array &$form, FormStateInterface $form_state) {
     $input = $form_state->getUserInput();
@@ -308,6 +325,11 @@ class ApplenewsTemplateForm extends EntityForm {
 
   /**
    * Ajax submit handler used when a "Cancel" button is clicked.
+   *
+   * @param array $form
+   *   An array of from definition.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state array.
    */
   public function resetTempFormValues(array &$form, FormStateInterface $form_state) {
     $form_state->set('sub_form_component_type', NULL);
@@ -316,8 +338,17 @@ class ApplenewsTemplateForm extends EntityForm {
   }
 
   /**
-   * Ajax callback responsible for displaying the component form. Triggered when
-   * the "Add new component" button is clicked.
+   * Ajax callback responsible for displaying the component form.
+   *
+   * Triggered when the "Add new component" button is clicked.
+   *
+   * @param array $form
+   *   An array of from definition.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state array.
+   *
+   * @return mixed
+   *   An array of new component.
    */
   public function addComponentForm(array &$form, FormStateInterface $form_state) {
     return $form['add_components'];
@@ -325,16 +356,33 @@ class ApplenewsTemplateForm extends EntityForm {
 
   /**
    * Ajax callback respsonsible for returning the updated components table.
+   *
    * Triggered when either the "delete" button or either of its confirmation
    * buttons are clicked.
+   *
+   * @param array $form
+   *   An array of from definition.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state array.
+   *
+   * @return mixed
+   *   An array of component table.
    */
   public function refreshComponentTable(array &$form, FormStateInterface $form_state) {
     return $form['components_list']['components_table'];
   }
 
   /**
-   * Ajax submit handler responsible for saving a new component. Triggered when
-   * the "Save Component" button is clicked.
+   * Ajax submit handler responsible for saving a new component.
+   *
+   * Triggered when the "Save Component" button is clicked.
+   *
+   * @param array $form
+   *   An array of from definition.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state array.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function addComponent(array &$form, FormStateInterface $form_state) {
     $form_state->set('sub_form_component_type', NULL);
@@ -348,8 +396,17 @@ class ApplenewsTemplateForm extends EntityForm {
   }
 
   /**
-   * Ajax callback that refreshed the whole form. Triggered when
-   * the "Save Component" button is clicked.
+   * Ajax callback that refreshed the whole form.
+   *
+   * Triggered when the "Save Component" button is clicked.
+   *
+   * @param array $form
+   *   An array of from definition.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state array.
+   *
+   * @return array
+   *   An array of form definition.
    */
   public function saveComponent(array &$form, FormStateInterface $form_state) {
     // @todo return commands and replace both form and component table so we don't have to replace the whole form.
@@ -357,8 +414,17 @@ class ApplenewsTemplateForm extends EntityForm {
   }
 
   /**
-   * Ajax callback that gets rid of the new component form. Triggered when the
-   * "Cancel" button is clicked on the new component form.
+   * Ajax callback that gets rid of the new component form.
+   *
+   * Triggered when the "Cancel" button is clicked on the new component form.
+   *
+   * @param array $form
+   *   An array of from definition.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state array.
+   *
+   * @return mixed
+   *   Component definition array.
    */
   public function cancelComponentForm(array &$form, FormStateInterface $form_state) {
     return $form['add_components'];
@@ -366,6 +432,13 @@ class ApplenewsTemplateForm extends EntityForm {
 
   /**
    * Ajax submit handler that stores the row the "delete" button was clicked on.
+   *
+   * @param array $form
+   *   An array of from definition.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state array.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function setDeleteComponentForm(array &$form, FormStateInterface $form_state) {
     $this->saveComponentOrder($form_state);
@@ -375,8 +448,10 @@ class ApplenewsTemplateForm extends EntityForm {
   }
 
   /**
-   * Ajax submit handler responsible for deleting a component from the table
-   * and entity. Triggered when the "Yes" button is clicked in confirmation.
+   * Ajax submit handler.
+   *
+   * Responsible for deleting a component from the table and entity. Triggered
+   * when the "Yes" button is clicked in confirmation.
    */
   public function deleteComponent(array &$form, FormStateInterface $form_state) {
     $form_state->set('delete_component', NULL);
@@ -393,12 +468,12 @@ class ApplenewsTemplateForm extends EntityForm {
   }
 
   /**
-   * Format the values from a newly added component into an array usable for
-   * an AppleTemplate.
+   * Format the values from a newly added component into an array.
    *
    * @todo Replace with a value object
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
    *
    * @return array
    *   An array in the proper format to pass to AppleTemplate::addComponent()
@@ -421,20 +496,24 @@ class ApplenewsTemplateForm extends EntityForm {
   }
 
   /**
-   * Helper function to get the parent of a button that was pressed. Used for
-   * component deletion and confirmation forms.
+   * Helper function to get the parent of a button that was pressed.
+   *
+   * Used for component deletion and confirmation forms.
    *
    * @param array $triggering_element
+   *   An array of element definition.
    *
    * @return string
+   *   String row index.
    */
   protected function getTriggeringRowIndex(array $triggering_element) {
     return $triggering_element['#parents'][1];
   }
 
   /**
-   * Get form elements to display to confirm a component will be deleted. Used
-   * in the components list table.
+   * Get form elements to display to confirm a component will be deleted.
+   *
+   * Used in the components list table.
    *
    * @return array
    *   The form array containing a Yes and Cancel button.
@@ -471,6 +550,9 @@ class ApplenewsTemplateForm extends EntityForm {
    * Sorts the components based on their new weights from the draggable table.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state array.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   protected function saveComponentOrder(FormStateInterface $form_state) {
     $component_table = $form_state->getValue('components_table');
@@ -520,13 +602,12 @@ class ApplenewsTemplateForm extends EntityForm {
   /**
    * Deletes child component.
    *
-   * @param $components
+   * @param array $components
    *   Component object.
-   *
-   * @param $child_id
+   * @param string $child_id
    *   Child id to delete.
    */
-  protected function deleteChildComponent(&$components, $child_id) {
+  protected function deleteChildComponent(array &$components, $child_id) {
     foreach ($components as &$component) {
       foreach ($component['component_data']['components'] as $id => $child_component) {
         if ($id == $child_id) {
@@ -546,17 +627,17 @@ class ApplenewsTemplateForm extends EntityForm {
   /**
    * Adds a child component.
    *
-   * @param $components
+   * @param array $components
    *   Component object.
-   * @param $parent_id
+   * @param string $parent_id
    *   Parent id.
-   * @param $child_component
+   * @param array $child_component
    *   Child component to add.
    *
    * @return bool
    *   TRUE if added successfully, FALSE otherwise.
    */
-  protected function addChildComponent(&$components, $parent_id, $child_component) {
+  protected function addChildComponent(array &$components, $parent_id, array $child_component) {
     // Go through top level components.
     foreach ($components as $id => &$component) {
       if ($id == $parent_id) {
@@ -565,7 +646,8 @@ class ApplenewsTemplateForm extends EntityForm {
       }
     }
 
-    // Go through any children they might have if we haven't found the parent id.
+    // Go through any children they might have if we haven't found
+    // the parent id.
     foreach ($components as $id => &$component) {
       return $this->addChildComponent($component['component_data']['components'], $parent_id, $child_component);
     }
@@ -574,14 +656,15 @@ class ApplenewsTemplateForm extends EntityForm {
   }
 
   /**
-   * Return formatted component data as a summary to be used in the component
-   * table.
+   * Return formatted component data as a summary.
    *
    * @param array $component
+   *   Component definition.
    *
    * @return string
+   *   String component data to display.
    */
-  protected function displayComponentData($component) {
+  protected function displayComponentData(array $component) {
     $return = '';
     foreach ($component['component_data'] as $key => $data) {
       if (is_array($data) && $key != 'components') {
@@ -595,17 +678,17 @@ class ApplenewsTemplateForm extends EntityForm {
   /**
    * Constructs a component row.
    *
-   * @param $component
+   * @param array $component
    *   Component object.
-   * @param $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state.
-   * @param null $parent_id
+   * @param null|string $parent_id
    *   Parent id, if available.
    *
    * @return array
    *   An array of row definition.
    */
-  protected function getComponentRow($component, $form_state, $parent_id = NULL) {
+  protected function getComponentRow(array $component, FormStateInterface $form_state, $parent_id = NULL) {
     $row = [];
     $row['#attributes']['class'][] = 'draggable';
 
@@ -671,9 +754,9 @@ class ApplenewsTemplateForm extends EntityForm {
   /**
    * Gets child component row definition to render.
    *
-   * @param $component
+   * @param array $component
    *   Component object.
-   * @param $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state.
    * @param int $depth
    *   Depth.
@@ -683,7 +766,7 @@ class ApplenewsTemplateForm extends EntityForm {
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
-  protected function getChildComponentRows($component, $form_state, $depth = 1) {
+  protected function getChildComponentRows(array $component, FormStateInterface $form_state, $depth = 1) {
     $rows = [];
     foreach ($component['component_data']['components'] as $id => $child_component) {
       $rows[$id] = $this->getComponentRow($child_component, $form_state, $component['uuid']);

@@ -8,12 +8,16 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
- * Applenews content entity normalizer. Takes a content entity, normalizes it
- * into a ChapterThree\AppleNewsAPI\Document.
+ * Applenews content entity normalizer.
+ *
+ * Takes a content entity, normalizes it into
+ *   a ChapterThree\AppleNewsAPI\Document.
  */
 class ApplenewsContentEntityNormalizer extends ApplenewsNormalizerBase {
 
   /**
+   * Entity type manager.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
@@ -22,6 +26,7 @@ class ApplenewsContentEntityNormalizer extends ApplenewsNormalizerBase {
    * Constructs an ApplenewsTemplateSelection object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   Entity type manager.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager) {
     $this->entityTypeManager = $entity_type_manager;

@@ -33,11 +33,13 @@ class ApplenewsImageComponentNormalizer extends ApplenewsComponentNormalizerBase
   /**
    * Gets image URL.
    *
-   * @param $file
+   * @param array $file
+   *   File array.
    *
    * @return null|string
+   *   String URL.
    */
-  protected function getUrl($file) {
+  protected function getUrl(array $file) {
     if (isset($file['uri'][0]['value'])) {
       return file_create_url($file['uri'][0]['value']);
     }

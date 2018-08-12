@@ -10,88 +10,97 @@ namespace Drupal\applenews;
 interface PublisherInterface {
 
   /**
+   * Retrieves channel details.
+   *
    * @param string $channel_id
    *   Channel ID.
    *
-   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/GetChannel.php
-   *
    * @return mixed
+   *   Channel details.
+   *
+   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/GetChannel.php
    */
   public function getChannel($channel_id);
 
   /**
    * Retrieve article.
    *
-   * @param $article_id
+   * @param string $article_id
    *   Unique article UUID.
    *
-   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/GetArticle.php
-   *
    * @return mixed
+   *   An article object.
+   *
+   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/GetArticle.php
    */
   public function getArticle($article_id);
 
   /**
    * Retrieves section details.
    *
-   * @param $section_id
+   * @param string $section_id
    *   Unique section UUID.
    *
-   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/GetSection.php
-   *
    * @return mixed
+   *   Section details, if avaiable. NULL otherwise.
+   *
+   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/GetSection.php
    */
   public function getSection($section_id);
 
   /**
    * Retrieves available sections.
    *
-   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/GetSections.php
-   *
-   * @param $channel_id
+   * @param string $channel_id
    *   Unique channel UUID.
    *
    * @return mixed
+   *   Sections.
+   *
+   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/GetSections.php
    */
   public function getSections($channel_id);
 
   /**
    * Creates new article.
    *
-   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/PostArticle.php
-   *
-   * @param $channel_id
+   * @param string $channel_id
    *   Unique channel UUID.
-   * @param $data
+   * @param array $data
    *   An array of data to post.
    *
-   * @return mixed
+   * @return object
+   *   Response object if successful. NULL otherwise.
+   *
+   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/PostArticle.php
    */
-  public function postArticle($channel_id, $data);
+  public function postArticle($channel_id, array $data);
 
   /**
    * Update an existing article.
    *
-   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/UpdateArticle.php
-   *
-   * @param $article_id
+   * @param string $article_id
    *   Unique article UUID.
-   * @param $data
+   * @param array $data
    *   An array of article data.
    *
    * @return mixed
+   *   Response object if update succefull. NULL otherwise.
+   *
+   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/UpdateArticle.php
    */
-  public function updateArticle($article_id, $data);
+  public function updateArticle($article_id, array $data);
 
   /**
    * Delete an article.
    *
-   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/UeleteArticle.php
-   *
-   * @param $article_id
+   * @param string $article_id
    *   Unique article UUID.
    *
    * @return mixed
+   *   Mixed deleted status.
+   *
+   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/UeleteArticle.php
    */
   public function deleteArticle($article_id);
 

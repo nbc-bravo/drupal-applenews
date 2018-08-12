@@ -18,14 +18,14 @@ use Drupal\Component\Annotation\Plugin;
 class ApplenewsComponentType extends Plugin {
 
   /**
-   * The fully qualified class name of thec hapter-three/AppleNewsAPI Component class.
+   * The fully qualified class name of the Component class.
    *
    * @var string
    */
   public $component_class;
 
   /**
-   * The type of component based on the content it will hold, such at text or url.
+   * The type of component based on the content, such at text or url.
    *
    * @var string
    */

@@ -17,18 +17,26 @@ use Symfony\Component\Serializer\Serializer;
 class ApplenewsPreviewForm extends FormBase {
 
   /**
+   * Template selector.
+   *
    * @var \Drupal\applenews\ApplenewsTemplateSelection
    */
   protected $applenewsTemplateSelection;
 
   /**
+   * Serializer.
+   *
    * @var \Symfony\Component\Serializer\Serializer
    */
   protected $serializer;
 
   /**
+   * Constructs form object.
+   *
    * @param \Drupal\applenews\ApplenewsTemplateSelection $template_selection
+   *   Template selector.
    * @param \Symfony\Component\Serializer\Serializer $serializer
+   *   Serializer.
    */
   public function __construct(ApplenewsTemplateSelection $template_selection, Serializer $serializer) {
     $this->applenewsTemplateSelection = $template_selection;

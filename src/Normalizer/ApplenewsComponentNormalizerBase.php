@@ -7,21 +7,26 @@ use ChapterThree\AppleNewsAPI\Document\Margin;
 use Drupal\applenews\Plugin\ApplenewsComponentTypeManager;
 
 /**
- * Class ApplenewsComponentNormalizerBase. Component normalizers should be
- * extended from this class.
+ * Class ApplenewsComponentNormalizerBase.
+ *
+ * Component normalizers should be extended from this class.
  */
 abstract class ApplenewsComponentNormalizerBase extends ApplenewsNormalizerBase {
 
   /**
-   * The component type of the plugin. This is used in ::supportsNormalization().
+   * The component type of the plugin.
    *
-   * @see \Drupal\applenews\Annotation\ApplenewsComponentType
+   * This is used in ::supportsNormalization().
    *
    * @var string
+   *
+   * @see \Drupal\applenews\Annotation\ApplenewsComponentType
    */
   protected $componentType;
 
   /**
+   * Component type manager.
+   *
    * @var \Drupal\applenews\Plugin\ApplenewsComponentTypeManager
    */
   protected $applenewsComponentTypeManager;
@@ -30,6 +35,7 @@ abstract class ApplenewsComponentNormalizerBase extends ApplenewsNormalizerBase 
    * Constructs a normalizer object.
    *
    * @param \Drupal\applenews\Plugin\ApplenewsComponentTypeManager $component_type_manager
+   *   Component type manager.
    */
   public function __construct(ApplenewsComponentTypeManager $component_type_manager) {
     $this->applenewsComponentTypeManager = $component_type_manager;
@@ -53,9 +59,12 @@ abstract class ApplenewsComponentNormalizerBase extends ApplenewsNormalizerBase 
    * Get the class name needed to instantiate an Apple News component.
    *
    * @param string $plugin_id
+   *   Plugin ID.
    *
    * @return string
    *   The fully-qualified name of the underlying Component class to use.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   protected function getComponentClass($plugin_id) {
     $component = $this->applenewsComponentTypeManager->createInstance($plugin_id);
@@ -66,10 +75,12 @@ abstract class ApplenewsComponentNormalizerBase extends ApplenewsNormalizerBase 
    * Get the Component layout values.
    *
    * @param array $component_layout
+   *   An array of component layout.
    *
    * @return \ChapterThree\AppleNewsAPI\Document\Layouts\ComponentLayout
+   *   Layout object.
    */
-  protected function getComponentLayout($component_layout) {
+  protected function getComponentLayout(array $component_layout) {
     $layout = new ComponentLayout();
     $layout->setColumnSpan($component_layout['column_span']);
     $layout->setColumnStart($component_layout['column_start']);
