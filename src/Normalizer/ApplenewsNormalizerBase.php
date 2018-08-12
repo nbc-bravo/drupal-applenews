@@ -17,6 +17,8 @@ abstract class ApplenewsNormalizerBase implements NormalizerInterface, Serialize
 
   /**
    * Name of the format that this normalizer deals with.
+   *
+   * @var string
    */
   protected $format = 'applenews';
 

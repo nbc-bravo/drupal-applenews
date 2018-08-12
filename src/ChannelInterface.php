@@ -24,42 +24,66 @@ use Drupal\Core\Entity\ContentEntityInterface;
 interface ChannelInterface extends ContentEntityInterface {
 
   /**
+   * Provides created datetime.
+   *
    * @return string
+   *   String datetime.
    */
   public function getCreatedAt();
 
   /**
+   * Provides last modified datetime.
+   *
    * @return string
+   *   String datetime.
    */
   public function getModifiedAt();
 
   /**
+   * Provides channel UUID.
+   *
    * @return string
+   *   String channel UUID.
    */
   public function getChannelId();
 
   /**
+   * Channel type.
+   *
    * @return string
+   *   String type.
    */
   public function getType();
 
   /**
+   * Provides url to share for review.
+   *
    * @return string
+   *   String share URL.
    */
   public function getShareUrl();
 
   /**
+   * List of links.
+   *
    * @return string[]
+   *   An array of links.
    */
   public function getLinks();
 
   /**
+   * Provides name.
+   *
    * @return string
+   *   String name of the channel.
    */
   public function getName();
 
   /**
+   * Provides website URL.
+   *
    * @return string
+   *   String URL.
    */
   public function getWebsite();
 

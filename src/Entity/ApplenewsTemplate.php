@@ -49,9 +49,12 @@ class ApplenewsTemplate extends ConfigEntityBase implements ApplenewsTemplateInt
   public $label;
 
   /**
-   * @todo make this a list of value objects
+   * Components.
    *
    * @var array
+   *   An array of component definition.
+   *
+   * @todo make this a list of value objects
    */
   protected $components = [];
 
@@ -78,6 +81,7 @@ class ApplenewsTemplate extends ConfigEntityBase implements ApplenewsTemplateInt
    * Gets the node type.
    *
    * @return string
+   *   String node type.
    */
   public function getNodeType() {
     return $this->node_type;
@@ -109,15 +113,15 @@ class ApplenewsTemplate extends ConfigEntityBase implements ApplenewsTemplateInt
   /**
    * Finds nested component by given id.
    *
-   * @param $components
+   * @param array $components
    *   Component to search.
-   * @param $id
+   * @param string $id
    *   ID of the child component.
    *
    * @return object|null
    *   Component if found, NULL otherwise.
    */
-  protected function getNestedComponent($components, $id) {
+  protected function getNestedComponent(array $components, $id) {
     foreach ($components as $component_id => $component) {
       if ($id == $component_id) {
         return $component;
@@ -157,15 +161,15 @@ class ApplenewsTemplate extends ConfigEntityBase implements ApplenewsTemplateInt
   /**
    * Deletes nested component.
    *
-   * @param $components
-   *   Component object.
-   * @param $id
+   * @param array $components
+   *   An array of component definition.
+   * @param string $id
    *   Component id.
    *
    * @return bool
    *   TRUE if deleted successfully, FALSE otherwise.
    */
-  protected function deleteNestedComponent(&$components, $id) {
+  protected function deleteNestedComponent(array &$components, $id) {
     foreach ($components as $component_id => $component) {
       if ($id == $component_id) {
         unset($components[$id]);
@@ -191,12 +195,17 @@ class ApplenewsTemplate extends ConfigEntityBase implements ApplenewsTemplateInt
   }
 
   /**
-   * Callable function to be used in a uasort call for the template's components.
+   * Callable function to uasort call for the template's components.
    *
-   * @param $a
-   * @param $b
+   * @param array $a
+   *   Indexed array.
+   * @param array $b
+   *   Indexed array.
+   *
+   * @return mixed
+   *   Sorted array.
    */
-  public function sortHelper($a, $b) {
+  public function sortHelper(array $a, array $b) {
     return $a['weight'] - $b['weight'];
   }
 

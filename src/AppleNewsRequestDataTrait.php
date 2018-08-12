@@ -13,6 +13,7 @@ trait AppleNewsRequestDataTrait {
    * @see https://developer.apple.com/documentation/apple_news/apple_news_format/text_styles_and_effects/choosing_fonts_for_your_article
    *
    * @return array
+   *   An array of font details.
    */
   protected function getFontData() {
     return [

@@ -58,11 +58,15 @@ class ApplenewsPreviewController extends ControllerBase {
   /**
    * Generates article.json and assets for preview.
    *
-   * @param $entity_type
-   * @param $entity
+   * @param \Drupal\node\NodeInterface $node
+   *   Node object.
+   * @param string $template_id
+   *   String template ID.
    * @param $revision_id
+   *   Revision ID.
    *
-   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+   * @return array
+   *   An array of preview element.
    */
   public function preview($entity_type, $entity, $revision_id) {
     $context['template_id'] = 'article';

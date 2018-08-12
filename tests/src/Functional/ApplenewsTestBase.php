@@ -13,21 +13,21 @@ abstract class ApplenewsTestBase extends BrowserTestBase {
    *
    * @var \Drupal\user\UserInterface
    */
-  protected $admin_user;
+  protected $adminUser;
 
   /**
    * A normal user with permission to bypass node access content.
    *
    * @var \Drupal\user\UserInterface
    */
-  protected $base_user;
+  protected $baseUser;
 
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = ['applenews', 'serialization', 'block'];
+  public static $modules = ['applenews', 'serialization', 'block', 'field'];
 
   /**
    * {@inheritdoc}
@@ -35,13 +35,13 @@ abstract class ApplenewsTestBase extends BrowserTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->admin_user = $this->drupalCreateUser([
+    $this->adminUser = $this->drupalCreateUser([
       'access administration pages',
       'administer applenews configuration',
       'administer applenews templates',
       'administer applenews channels',
     ]);
-    $this->base_user = $this->drupalCreateUser([]);
+    $this->baseUser = $this->drupalCreateUser([]);
 
     $this->drupalPlaceBlock('local_actions_block');
     $this->drupalPlaceBlock('local_tasks_block');

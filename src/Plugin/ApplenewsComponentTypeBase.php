@@ -14,13 +14,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * Plugins extending this class need to define a plugin definition array through
  * annotation. These definition arrays may be altered through
- * hook_applenews_component_type_plugin_info_alter(). The definition includes the
- * following keys:
+ * hook_applenews_component_type_plugin_info_alter().
+ * The definition includes the following keys:
  * - id: The unique, system-wide identifier of the component type.
  * - label: The human-readable name of the component type, translated.
- * - description: A human-readable description for the component type, translated.
- * - component_type: A schema-defined "meta-type" that describes the type of data
- *  the component will display. Options: text, image, nested, or divider.
+ * - description: A human-readable description for the component type,
+ *   translated.
+ * - component_type: A schema-defined "meta-type" that describes the type of
+ *   data the component will display. Options: text, image, nested, or divider.
  *
  * A complete plugin definition should be written as in this example:
  *
@@ -36,6 +37,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class ApplenewsComponentTypeBase extends PluginBase implements ApplenewsComponentTypeInterface {
 
   /**
+   * Field manager.
+   *
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected $fieldManager;
@@ -89,7 +92,7 @@ abstract class ApplenewsComponentTypeBase extends PluginBase implements Applenew
     $element['component_settings']['component_layout']['ignore_margin'] = [
       '#type' => 'select',
       '#title' => $this->t('Ignore Document Margin'),
-      '#description' => $this->t('Indicates whether a document\'s margins should be respected or ignored by the parent container.'),
+      '#description' => $this->t("Indicates whether a document's margins should be respected or ignored by the parent container."),
       '#options' => [
         'none' => $this->t('None'),
         'left' => $this->t('Left'),
@@ -191,7 +194,8 @@ abstract class ApplenewsComponentTypeBase extends PluginBase implements Applenew
   /**
    * Get all of the fields of a node type as options for a form.
    *
-   * @param $node_type
+   * @param string $node_type
+   *   String node type.
    *
    * @return array
    *   An array of options suitable for a Form API selection element.
@@ -213,9 +217,10 @@ abstract class ApplenewsComponentTypeBase extends PluginBase implements Applenew
   }
 
   /**
-   * Get field machine names of base fields that are available to use for content.
+   * Get field machine names of base fields.
    *
    * @return array
+   *   An array of base fields.
    */
   protected function getBaseFields() {
     return [
@@ -226,12 +231,17 @@ abstract class ApplenewsComponentTypeBase extends PluginBase implements Applenew
   }
 
   /**
+   * Provides select element.
+   *
    * Get a field selection element that will have all fields on the selected
    * content type as an option, and allow dynamic selection of their properties.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
    * @param string $name
+   *   String name.
    * @param string $label
+   *   String label.
    *
    * @return array
    *   A Form API render array
@@ -290,7 +300,8 @@ abstract class ApplenewsComponentTypeBase extends PluginBase implements Applenew
   /**
    * Get all the properties of a field as a selection element.
    *
-   * @param \Drupal\field\Entity\FieldStorageConfigInterface $config
+   * @param \Drupal\field\FieldStorageConfigInterface $config
+   *   Field storage config.
    *
    * @return array
    *   A Form API render array
@@ -333,6 +344,8 @@ abstract class ApplenewsComponentTypeBase extends PluginBase implements Applenew
   }
 
   /**
+   * Provides element width.
+   *
    * Get the form fields necessary for setting the maximum content width for a
    * component. Only a few component types recognize this setting.
    *

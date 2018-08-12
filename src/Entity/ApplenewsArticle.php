@@ -97,9 +97,13 @@ class ApplenewsArticle extends ContentEntityBase {
   }
 
   /**
-   * @param $response
+   * Update properties from object.
+   *
+   * @param object $response
+   *   Response object.
    *
    * @return $this
+   *   Current object.
    */
   public function updateFromResponse($response) {
     if (is_object($response) && isset($response->data)) {
@@ -123,9 +127,12 @@ class ApplenewsArticle extends ContentEntityBase {
    * Returns create date in system formats.
    *
    * @param string $type
-   * @param null $format
+   *   String type.
+   * @param string|null $format
+   *   String format.
    *
    * @return string
+   *   String formatted created date.
    */
   public function getCreatedFormatted($type = 'medium', $format = NULL) {
     return $this->formatDate($this->get('createdAt')->value, $type, $format);
@@ -135,9 +142,12 @@ class ApplenewsArticle extends ContentEntityBase {
    * Returns modified date in system formats.
    *
    * @param string $type
-   * @param null $format
+   *   String type.
+   * @param string|null $format
+   *   String format.
    *
    * @return string
+   *   String formatted date
    */
   public function getModifiedFormatted($type = 'medium', $format = NULL) {
     return $this->formatDate($this->get('modifiedAt')->value, $type, $format);
@@ -146,10 +156,15 @@ class ApplenewsArticle extends ContentEntityBase {
   /**
    * Formats given datetime string.
    *
+   * @param string $date
+   *   String date to format.
    * @param string $type
-   * @param null $format
+   *   String type.
+   * @param string|null $format
+   *   String format.
    *
    * @return string
+   *   String formatted date
    */
   protected function formatDate($date, $type = 'medium', $format = NULL) {
     /** @var \Drupal\Core\Datetime\DateFormatter $date_formatter */

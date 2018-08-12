@@ -29,7 +29,7 @@ class ApplenewsTemplateAdminTest extends ApplenewsTestBase {
    */
   public function testAppleNewsTemplateAdminPages() {
     $assert_session = $this->assertSession();
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     // Verify overview page has empty message by default.
     $this->drupalGet('admin/config/services/applenews');
@@ -44,7 +44,7 @@ class ApplenewsTemplateAdminTest extends ApplenewsTestBase {
    */
   public function testAppleNewsTemplateAdd() {
     $assert_session = $this->assertSession();
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     $this->drupalGet('admin/config/services/applenews/template/add');
     $assert_session->statusCodeEquals(200);

@@ -14,7 +14,7 @@ class ApplenewsChannelAdminTest extends ApplenewsTestBase {
    */
   public function testAppleNewsTemplateAdminPages() {
     $assert_session = $this->assertSession();
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     // Verify overview page has empty message by default.
     $this->drupalGet('admin/config/services/applenews/channel');

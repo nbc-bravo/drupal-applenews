@@ -14,7 +14,7 @@ class ApplenewsAdminTest extends ApplenewsTestBase {
    */
   public function testAppleNewsAdminPages() {
     $assert_session = $this->assertSession();
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
 
     // Verify overview page.
     $this->drupalGet('/admin/config');
@@ -41,7 +41,7 @@ class ApplenewsAdminTest extends ApplenewsTestBase {
    */
   public function testAdminFormSubmit() {
     $assert_session = $this->assertSession();
-    $this->drupalLogin($this->admin_user);
+    $this->drupalLogin($this->adminUser);
     $endpoint = $this->randomString();
     $api_key = $this->randomString();
     $api_secret = $this->randomString();

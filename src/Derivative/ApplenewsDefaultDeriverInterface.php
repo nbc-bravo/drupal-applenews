@@ -10,8 +10,12 @@ namespace Drupal\applenews\Derivative;
 interface ApplenewsDefaultDeriverInterface {
 
   /**
-   * Get the list of Apple News component types with their underlying class
-   * from the AppleNewsAPI. @see https://github.com/chapter-three/AppleNewsAPI.
+   * Get the list of Apple News component types.
+   *
+   * Retrieves compontent types with their underlying class from
+   * the AppleNews API.
+   *
+   * @see https://github.com/chapter-three/AppleNewsAPI
    *
    * @return array
    *   An array keyed by the "role" of the Apple News component, and containing

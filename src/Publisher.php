@@ -34,7 +34,7 @@ class Publisher implements PublisherInterface {
    * {@inheritdoc}
    */
   public function getChannel($channel_id) {
-    $response = $this->publisher()->get('/channels/{channel_id}', ['channel_id' => $channel_id]);
+    $response = $this->getPublisher()->get('/channels/{channel_id}', ['channel_id' => $channel_id]);
     return $this->handleResponse($response);
   }
 
@@ -42,7 +42,7 @@ class Publisher implements PublisherInterface {
    * {@inheritdoc}
    */
   public function getArticle($article_id) {
-    $response = $this->publisher()->get('/articles/{article_id}', ['article_id' => $article_id]);
+    $response = $this->getPublisher()->get('/articles/{article_id}', ['article_id' => $article_id]);
     return $this->handleResponse($response);
   }
 
@@ -50,7 +50,7 @@ class Publisher implements PublisherInterface {
    * {@inheritdoc}
    */
   public function getSection($section_id) {
-    $response = $this->publisher()->get('/sections/{section_id}', ['section_id' => $section_id]);
+    $response = $this->getPublisher()->get('/sections/{section_id}', ['section_id' => $section_id]);
     return $this->handleResponse($response);
   }
 
@@ -58,7 +58,7 @@ class Publisher implements PublisherInterface {
    * {@inheritdoc}
    */
   public function getSections($channel_id) {
-    $response = $this->publisher()->get('/channels/{channel_id}/sections', ['channel_id' => $channel_id]);
+    $response = $this->getPublisher()->get('/channels/{channel_id}/sections', ['channel_id' => $channel_id]);
     return $this->handleResponse($response);
 
   }
@@ -66,8 +66,8 @@ class Publisher implements PublisherInterface {
   /**
    * {@inheritdoc}
    */
-  public function postArticle($channel_id, $data) {
-    $response = $this->publisher()->post('/channels/{channel_id}/articles', ['channel_id' => $channel_id], $data);
+  public function postArticle($channel_id, array $data) {
+    $response = $this->getPublisher()->post('/channels/{channel_id}/articles', ['channel_id' => $channel_id], $data);
     return $this->handleResponse($response);
 
   }
@@ -75,15 +75,28 @@ class Publisher implements PublisherInterface {
   /**
    * {@inheritdoc}
    */
-  public function updateArticle($article_id, $data) {
-    $response = $this->publisher()->post('/articles/{article_id}', ['article_id' => $article_id], $data);
+  public function updateArticle($article_id, array $data) {
+    $response = $this->getPublisher()->post('/articles/{article_id}', ['article_id' => $article_id], $data);
     return $this->handleResponse($response);
   }
 
   /**
-   * @param $response
+   * {@inheritdoc}
+   */
+  public function deleteArticle($article_id) {
+    $response = $this->getPublisher()->delete('/articles/{article_id}', ['article_id' => $article_id]);
+    return $this->handleResponse($response);
+  }
+
+  /**
+   * Handles error and exception cases of response.
+   *
+   * @param object $response
+   *   Response object.
    *
    * @return mixed
+   *   Returns response.
+   *
    * @throws \Drupal\applenews\Exception\ApplenewsInvalidResponseException
    */
   protected function handleResponse($response) {
@@ -96,9 +109,12 @@ class Publisher implements PublisherInterface {
   }
 
   /**
+   * Provides publisher object.
+   *
    * @return \ChapterThree\AppleNewsAPI\PublisherAPI
+   *   Publisher object.
    */
-  protected function publisher() {
+  protected function getPublisher() {
     return new PublisherAPI($this->config->get('api_key'), $this->config->get('api_secret'), $this->config->get('endpoint'));
   }
 

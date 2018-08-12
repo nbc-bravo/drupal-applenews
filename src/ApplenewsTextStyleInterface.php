@@ -7,8 +7,6 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 /**
  * Interface ApplenewsTextStyleInterface.
  *
- * @see https://developer.apple.com/documentation/apple_news/apple_news_format/text_styles_and_effects/defining_and_using_text_styles
- *
  * @code
  *  "fontName": "DINAlternate-Bold",
  *  "fontSize": 12,
@@ -18,6 +16,7 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
  *  "tracking": 0.12,
  * @endcode
  *
+ * @see https://developer.apple.com/documentation/apple_news/apple_news_format/text_styles_and_effects/defining_and_using_text_styles
  * @see https://developer.apple.com/documentation/apple_news/text_style
  *
  * @package Drupal\applenews

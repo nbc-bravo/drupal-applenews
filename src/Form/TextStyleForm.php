@@ -59,7 +59,6 @@ class TextStyleForm extends EntityForm {
       '#title' => $this->t('Text style name'),
       '#default_value' => $entity->label(),
       '#required' => TRUE,
-      '#description' => $this->t(''),
     ];
     $form['name'] = [
       '#type' => 'machine_name',
@@ -68,7 +67,6 @@ class TextStyleForm extends EntityForm {
       ],
       '#default_value' => $entity->id(),
       '#required' => TRUE,
-      '#description' => $this->t(''),
     ];
     $form['fontName'] = [
       '#type' => 'select',
@@ -138,7 +136,7 @@ class TextStyleForm extends EntityForm {
     $form['textShadow']['radius'] = [
       '#type' => 'number',
       '#title' => $this->t('Radius'),
-      '#description' => $this->t('The shadow\'s radius as a value between 0 and 100 in points.'),
+      '#description' => $this->t("The shadow's radius as a value between 0 and 100 in points."),
     ];
     $form['textShadow']['opacity'] = [
       '#type' => 'number',
@@ -155,7 +153,7 @@ class TextStyleForm extends EntityForm {
     $form['textShadow']['offset'] = [
       '#type' => 'details',
       '#title' => $this->t('Offset'),
-      '#description' => $this->t('The shadow\'s offset as a value between -50 and 50 in points.'),
+      '#description' => $this->t("The shadow's offset as a value between -50 and 50 in points."),
     ];
     $form['textShadow']['offset']['x'] = [
       '#type' => 'number',
@@ -165,7 +163,6 @@ class TextStyleForm extends EntityForm {
     $form['textShadow']['offset']['y'] = [
       '#type' => 'number',
       '#title' => $this->t('Y'),
-      '#description' => $this->t(''),
     ];
 
     $form['textTransform'] = [
@@ -178,7 +175,6 @@ class TextStyleForm extends EntityForm {
         'capitalize' => $this->t('Capitalize'),
       ],
       '#default_value' => '',
-      '#description' => $this->t(''),
     ];
     $form['underline'] = [
       '#type' => 'checkbox',
@@ -235,7 +231,6 @@ class TextStyleForm extends EntityForm {
         'justified' => 'Justified',
       ],
       '#default_value' => '',
-      '#description' => $this->t(''),
     ];
     $form['lineHeight'] = [
       '#type' => 'textfield',
