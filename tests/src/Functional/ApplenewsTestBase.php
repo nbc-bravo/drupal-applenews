@@ -27,7 +27,7 @@ abstract class ApplenewsTestBase extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['applenews', 'serialization', 'block'];
+  public static $modules = ['applenews', 'serialization', 'block', 'field'];
 
   /**
    * {@inheritdoc}
