@@ -207,7 +207,38 @@ class ApplenewsManager {
   }
 
   /**
-   * Update article.
+   * Delete an article from given entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *
+   * @return bool
+   */
+  public function delete(EntityInterface $entity) {
+    $fields = $this->getFields($entity->getEntityTypeId());
+    if (!$fields) {
+      return FALSE;
+    }
+    foreach ($fields as $field_name => $detail) {
+      $article = self::getArticle($entity, $field_name);
+      if ($article) {
+        $this->doDelete($article->getArticleId());
+      }
+    }
+  }
+
+  /**
+   * Delete an article.
+   *
+   * @param $article_id
+   *
+   * @return mixed
+   */
+  protected function doDelete($article_id) {
+    return $this->publisher->deleteArticle($article_id);
+  }
+
+  /**
+   * Update an article.
    *
    * @param $article_id
    * @param $data

@@ -21,7 +21,6 @@ function applenews_entity_insert(EntityInterface $entity) {
   catch (\Exception $e) {
     \Drupal::logger('applenews')->error(t('Error posting  to Apple News'));
   }
-
 }
 
 /**
@@ -38,5 +37,20 @@ function applenews_entity_update(EntityInterface $entity) {
   catch (\Exception $e) {
     \Drupal::logger('applenews')->error(t('Error posting  to Apple News'));
   }
+}
 
+/**
+ * Implements hook_entity_delete().
+ */
+function applenews_entity_delete(EntityInterface $entity) {
+
+  try {
+    /** @var \Drupal\applenews\ApplenewsManager $manager */
+    $manager = \Drupal::service('applenews.manager');
+    // On successful post, save response details on entity.
+    $manager->delete($entity);
+  }
+  catch (\Exception $e) {
+    \Drupal::logger('applenews')->error(t('Error posting  to Apple News'));
+  }
 }

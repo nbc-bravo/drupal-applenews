@@ -83,4 +83,16 @@ interface PublisherInterface {
    */
   public function updateArticle($article_id, $data);
 
+  /**
+   * Delete an article.
+   *
+   * @see vendor/chapter-three/apple-news-api/examples/PublisherAPI/UeleteArticle.php
+   *
+   * @param $article_id
+   *   Unique article UUID.
+   *
+   * @return mixed
+   */
+  public function deleteArticle($article_id);
+
 }

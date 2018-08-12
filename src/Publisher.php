@@ -81,6 +81,14 @@ class Publisher implements PublisherInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function deleteArticle($article_id) {
+    $response = $this->publisher()->delete('/articles/{article_id}', ['article_id' => $article_id]);
+    return $this->handleResponse($response);
+  }
+
+  /**
    * @param $response
    *
    * @return mixed
