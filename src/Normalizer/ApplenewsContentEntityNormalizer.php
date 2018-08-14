@@ -6,6 +6,7 @@ use ChapterThree\AppleNewsAPI\Document\Layouts\Layout;
 use ChapterThree\AppleNewsAPI\Document;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Language\LanguageInterface;
 
 /**
  * Applenews content entity normalizer.
@@ -48,10 +49,15 @@ class ApplenewsContentEntityNormalizer extends ApplenewsNormalizerBase {
     // @todo check cache
     $template = $this->entityTypeManager->getStorage('applenews_template')->load($context['template_id']);
     $layout = new Layout($template->columns, $template->width);
+    $langcode = $data->language()->getId();
+    // If language is not specified , fallback to site default.
+    if ($langcode == LanguageInterface::LANGCODE_NOT_SPECIFIED) {
+      $langcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+    }
     $layout
       ->setMargin($template->margin)
       ->setGutter($template->gutter);
-    $document = new Document($data->uuid(), $data->getTitle(), $data->language()->getId(), $layout);
+    $document = new Document($data->uuid(), $data->getTitle(), $langcode, $layout);
 
     $context['entity'] = $data;
     foreach ($template->getComponents() as $component) {
