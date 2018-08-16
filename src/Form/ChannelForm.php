@@ -136,6 +136,7 @@ class ChannelForm extends ContentEntityForm {
   public function save(array $form, FormStateInterface $form_state) {
     $channel_id = $form_state->getValue('id')[0]['value'];
     $channel = $this->entity;
+
     // Fetch sections.
     $response = $this->publisher->GetSections($channel_id);
     if ($response) {

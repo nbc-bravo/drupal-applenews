@@ -56,6 +56,14 @@ entity.applenews_channel.edit_form:
   requirements:
     _permission: 'administer applenews channels'
 
+entity.applenews_channel.refresh_form:
+  path: '/admin/config/services/applenews/channel/{applenews_channel}/refresh'
+  defaults:
+    _title: 'Refresh channel metadata for Apple News'
+    _controller: '\Drupal\applenews\Controller\ApplenewsChannelController::refresh'
+  requirements:
+    _permission: 'administer applenews channels'
+
 entity.applenews_channel.delete_form:
   path: '/admin/config/services/applenews/{applenews_channel}/delete'
   defaults:

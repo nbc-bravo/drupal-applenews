@@ -43,6 +43,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  *     "collection" = "/admin/config/services/applenews/channel",
  *     "add-form" = "/admin/config/services/applenews/channel/add",
  *     "edit-form" = "/admin/config/services/applenews/channel/{applenews_channel}",
+ *     "refresh-form" = "/admin/config/services/applenews/channel/{applenews_channel}/refresh",
  *     "delete-form" = "/admin/config/services/applenews/channel/{applenews_channel}/delete",
  *   }
  * )
@@ -115,6 +116,28 @@ class ApplenewsChannel extends ContentEntityBase implements ChannelInterface {
   }
 
   /**
+   * Updates channel details from Apple News.
+   *
+   * @see \Drupal\applenews\Commands\ApplenewsCommands::updateChannel()
+   */
+  public function updateMetaData() {
+    $channel_id = $this->getChannelId();
+    $publisher = \Drupal::service('applenews.publisher');
+
+    // Fetch Channel details:
+    $response = $publisher->getChannel($channel_id);
+    $this->updateFromResponse($response);
+
+    // Fetch sections.
+    $response = $publisher->GetSections($channel_id);
+    if ($response) {
+      $this->updateSections($response);
+    }
+
+    return $this->save();
+  }
+
+  /**
    * Updates properties from reponse.
    *
    * @param object $response
@@ -163,6 +186,28 @@ class ApplenewsChannel extends ContentEntityBase implements ChannelInterface {
     }
 
     return $this;
+  }
+
+  /**
+   * Loads by channel ID.
+   *
+   * @param string $channel_id
+   *   String channel ID.
+   *
+   * @return \Drupal\applenews\Entity\ApplenewsChannel|null
+   *   Apple News Channel entity if exist. NULL otherwise.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   */
+  public static function loadByChannelId($channel_id) {
+    $query = \Drupal::entityQuery('applenews_channel');
+    $ids = $query->condition('id', $channel_id)->execute();
+    if ($ids) {
+      $entity_type_manager = \Drupal::entityTypeManager();
+      $channels = $entity_type_manager->getStorage('applenews_channel')->loadMultiple($ids);
+      return array_shift($channels);
+    }
+    return NULL;
   }
 
   /**
