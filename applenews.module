@@ -19,7 +19,7 @@ function applenews_entity_insert(EntityInterface $entity) {
     $manager->postArticle($entity);
   }
   catch (\Exception $e) {
-    \Drupal::logger('applenews')->error(t('Error posting  to Apple News'));
+    \Drupal::logger('applenews')->error(t('Error while trying create article in Apple News: @error', ['@error' => $e->getMessage()]));
   }
 }
 
@@ -35,7 +35,7 @@ function applenews_entity_update(EntityInterface $entity) {
     $manager->postArticle($entity);
   }
   catch (\Exception $e) {
-    \Drupal::logger('applenews')->error(t('Error posting  to Apple News'));
+    \Drupal::logger('applenews')->error(t('Error while trying update article in Apple News: @error', ['@err' => $e->getMessage()]));
   }
 }
 
@@ -51,6 +51,6 @@ function applenews_entity_delete(EntityInterface $entity) {
     $manager->delete($entity);
   }
   catch (\Exception $e) {
-    \Drupal::logger('applenews')->error(t('Error posting  to Apple News'));
+    \Drupal::logger('applenews')->error(t('Error while trying delete article in Apple News: @error', ['@err' => $e->getMessage()]));
   }
 }

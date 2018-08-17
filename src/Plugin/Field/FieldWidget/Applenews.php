@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 
 /**
@@ -41,6 +42,9 @@ class Applenews extends WidgetBase {
       ];
     }
     else {
+      $element += [
+        '#element_validate' => [[get_class($this), 'validateFormElement']],
+      ];
       $element['status'] = [
         '#type' => 'checkbox',
         '#title' => t('Publish to Apple News'),
@@ -175,6 +179,45 @@ class Applenews extends WidgetBase {
     }
 
     return $element;
+  }
+
+  /**
+   * Form element validation handler for URL alias form element.
+   *
+   * @param array $element
+   *   The form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function validateFormElement(array $element, FormStateInterface $form_state) {
+    $status = $element['status']['#value'];
+    if ($status) {
+      // If status exist, at least one channel should be selected.
+      $has_channel = FALSE;
+      $has_section = FALSE;
+      foreach (Element::children($element['channels']) as $key) {
+        if ($element['channels'][$key]['#value']) {
+          $has_channel = TRUE;
+        }
+      }
+      // If a channel selected, at least one section should selected.
+      foreach (Element::children($element['sections']) as $key) {
+        if ($element['sections'][$key]['#value']) {
+          $has_section = TRUE;
+        }
+      }
+
+      // Show consolidated message, if no channel AND sections selected.
+      if (!$has_channel && !$has_section) {
+        $form_state->setError($element['channels'], t('Apple News: At least one channel and a section should be selected to publish.'));
+      }
+      elseif (!$has_channel) {
+        $form_state->setError($element['channels'], t('Apple News: At least one channel should be selected to publish.'));
+      }
+      elseif (!$has_section) {
+        $form_state->setError($element['sections'], t('Apple News: At least one section should be selected to publish.'));
+      }
+    }
   }
 
   /**
