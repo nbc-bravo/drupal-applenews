@@ -113,10 +113,14 @@ class ApplenewsManager {
       return FALSE;
     }
 
+    /** @var \Drupal\Core\Entity\ContentEntityInterface $entity $fields */
     foreach ($fields as $field_name => $detail) {
+      // For cases like migration, entity might not have the field.
+      if (!$entity->hasField($field_name)) {
+        continue;
+      }
       $field = $entity->get($field_name);
       if ($field->status) {
-
         $template = $field->template;
         $channels = unserialize($field->channels);
         $document = $this->getDocumentDataFromEntity($entity, $template);
@@ -135,7 +139,6 @@ class ApplenewsManager {
               'field_name' => $field_name,
             ]);
             $article->updateFromResponse($response)->save();
-
           }
           else {
             /** @var \Drupal\applenews\Entity\ApplenewsArticle $article */
@@ -148,7 +151,6 @@ class ApplenewsManager {
         }
       }
     }
-
     return TRUE;
   }
 
