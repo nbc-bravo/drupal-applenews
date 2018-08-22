@@ -7,6 +7,7 @@ use ChapterThree\AppleNewsAPI\Document;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Language\LanguageInterface;
+use ChapterThree\AppleNewsAPI\Document\Components\Component;
 
 /**
  * Applenews content entity normalizer.
@@ -61,7 +62,19 @@ class ApplenewsContentEntityNormalizer extends ApplenewsNormalizerBase {
 
     $context['entity'] = $data;
     foreach ($template->getComponents() as $component) {
-      $document->addComponent($this->serializer->normalize($component, $format, $context));
+      $normalized = $this->serializer->normalize($component, $format, $context);
+      if (!$normalized) {
+        continue;
+      }
+      elseif ($normalized instanceof Component) {
+        $normalized = [$normalized];
+      }
+
+      foreach ($normalized as $normalized_component) {
+        if ($normalized_component instanceof Component) {
+          $document->addComponent($normalized_component);
+        }
+      }
     }
 
     // @todo: Load only default and used custom styles.
