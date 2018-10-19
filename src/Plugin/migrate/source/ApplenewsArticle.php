@@ -21,9 +21,9 @@ class ApplenewsArticle extends DrupalSqlBase {
   public function query() {
     $query = $this->select('applenews_entities', 'ae')
       ->fields('ae')
-      ->fields('aes', ['data'])
+      ->fields('am', ['data'])
       ->fields('n', ['type']);
-    $query->innerJoin('applenews_entity_settings', 'aes', 'ae.entity_type = aes.entity_type AND ae.entity_id = aes.entity_id AND ae.revision_id = aes.revision_id');
+    $query->innerJoin('applenews_metadata', 'am', 'am.post_id = ae.post_id');
     $query->innerJoin('node', 'n', 'n.nid = ae.entity_id');
     return $query;
   }
@@ -34,12 +34,7 @@ class ApplenewsArticle extends DrupalSqlBase {
   public function prepareRow(Row $row) {
     // Deserialize the data field and compose the links field.
     $data = unserialize($row->getSourceProperty('data'));
-    $links = [
-      'channel' => $data['channels'][0],
-      'sections' => $data['sections'],
-      'self' => 'https://news-api.apple.com/articles/' . $row->getSourceProperty('article_id'),
-    ];
-    $row->setSourceProperty('links', serialize($links));
+    $row->setSourceProperty('links', serialize((array) $data['links']));
 
     // Convert postdate into a datetime.
     $created_at = gmdate('Y-m-d\TH:i:s\Z', $row->getSourceProperty('postdate'));
