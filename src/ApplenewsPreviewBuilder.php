@@ -353,7 +353,7 @@ class ApplenewsPreviewBuilder {
       }
 
       // Open archive.
-      $result = $zip->open($entity_archive, \ZipArchive::CREATE);
+      $result = $zip->open($entity_archive, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
       if ($result !== TRUE) {
         throw new \Exception('Could not open archive file: ' . $this->zipErrorMsg($result));
       }
@@ -364,9 +364,8 @@ class ApplenewsPreviewBuilder {
 
     }
     else {
-
       // Open archive.
-      $result = $zip->open($this->archiveFile, \\ZipArchive::CREATE | ZipArchive::OVERWRITE);
+      $result = $zip->open($this->archiveFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
       if ($result !== TRUE) {
         throw new \Exception('Could not open archive file: ' . $this->zipErrorMsg($result));
       }
